@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jornal do Commercio</title>
-    <link rel="stylesheet" href="static/css/home.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
     <!-- Top Bar -->
@@ -74,6 +75,12 @@
                         <span class="category-tag">ECONOMIA</span>
                         <a href="#" class="read-more">Saiba mais →</a>
                     </div>
+
+                    <div class="article-card">
+                        <h2>Governo cria comitê de enfrentamento da crise do metanol</h2>
+                        <span class="category-tag">BRASIL</span>
+                        <a href="#" class="read-more">Saiba mais →</a>
+                    </div>
                 </div>
             </div>
             
@@ -85,51 +92,27 @@
                     <p>Canal</p>
                 </div>
                 
-                <!-- Informações do Dia -->
-                <div class="sidebar-section">
+                <!-- Informações do Dia em formato de tabela -->
+                <div class="info-section">
                     <h3>Informações do Dia</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="temp">30°C</div>
-                            <div class="label">Máxima</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="temp">27°C</div>
-                            <div class="label">Mínima</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="currency">R$ 5,351</div>
-                            <div class="label">Dólar</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="currency">R$ 7,431</div>
-                            <div class="label">Euro</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Artigos por Categoria -->
-                <div class="sidebar-section">
-                    <h3>Mais Notícias</h3>
-                    <div class="category-articles">
-                        <div class="category-item">
-                            <h4>Governo cria comitê de enfrentamento da crise do metanol</h4>
-                            <span class="category-tag">BRASIL</span>
-                            <a href="#" class="read-more">Saiba mais →</a>
-                        </div>
-                        
-                        <div class="category-item">
-                            <h4>Previsão Marés Recife</h4>
-                            <span class="category-tag">CIDADE</span>
-                            <a href="#" class="read-more">Saiba mais →</a>
-                        </div>
-                        
-                        <div class="category-item">
-                            <h4>MEGA SENA N 2926</h4>
-                            <span class="category-tag">LOTERIAS</span>
-                            <a href="#" class="read-more">Saiba mais →</a>
-                        </div>
-                    </div>
+                    <table class="info-table">
+                        <tr>
+                            <td class="info-label">Previsão diária</td>
+                            <td class="info-value">30°C / 27°C</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">Cotação do dia</td>
+                            <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">Previsão Marés Recife</td>
+                            <td class="info-value">---</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">MEGA SENA N 2926</td>
+                            <td class="info-value">---</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>

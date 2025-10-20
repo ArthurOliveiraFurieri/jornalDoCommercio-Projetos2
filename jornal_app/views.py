@@ -7,8 +7,13 @@ from django.db.models import Q
 
 from .models import Categoria, Noticia
 from .forms import CategoriaForm
+from .models import Categoria
 
 # --- VIEWS PARA O LEITOR ---
+
+from django.shortcuts import render
+from django.views.generic import TemplateView
+from .models import Categoria  # ← ADICIONE ESTA IMPORTACAÇÃO
 
 class HomeView(TemplateView):
     """
@@ -54,7 +59,7 @@ class HomeView(TemplateView):
         ]
         
         # Categorias para o menu de navegação
-        context['categorias'] = Categoria.objects.all()
+        context['categorias'] = Categoria.objects.all()  # ← AGORA VAI FUNCIONAR
         
         # Dados mockados (substitua por dados reais quando tiver)
         context['informacoes_dia'] = {
@@ -64,7 +69,7 @@ class HomeView(TemplateView):
             'euro': 'R$ 7,431'
         }
         
-        return context
+        return context  # ← CORRIGIDO (tinha texto extra)
 
 class NoticiaDetailView(DetailView):
     """
