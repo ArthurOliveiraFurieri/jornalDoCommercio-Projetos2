@@ -4,158 +4,369 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jornal do Commercio</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .newspaper-title {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        
+        .tagline {
+            font-size: 18px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+        
+        /* Barra de Pesquisa */
+        .search-section {
+            background-color: #f8f8f8;
+            padding: 15px 0;
+            margin: 20px 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .search-container {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ccc;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #1a1a1a;
+        }
+        
+        .search-button {
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .search-button:hover {
+            background-color: #333;
+        }
+        
+        /* Navegação */
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 8px 0;
+            position: relative;
+        }
+        
+        .nav-menu a:hover {
+            color: #1a1a1a;
+        }
+        
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #1a1a1a;
+            transition: width 0.3s;
+        }
+        
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+        
+        /* Layout Principal */
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin: 30px 0;
+        }
+        
+        /* Conteúdo Principal */
+        .content-left {
+            background-color: white;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .headline-section {
+            margin-bottom: 30px;
+        }
+        
+        .main-headline {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        
+        .headline-description {
+            font-size: 18px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .article {
+            margin: 30px 0;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .article:last-child {
+            border-bottom: none;
+        }
+        
+        .article h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+        
+        .article p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .read-more {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background-color: white;
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .live-section {
+            background-color: #e60000;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .live-section h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .info-section h3 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .info-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-table td {
+            padding: 12px 8px;
+            vertical-align: top;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 35%;
+            color: #333;
+        }
+        
+        .info-value {
+            color: #666;
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                gap: 15px;
+            }
+            
+            .newspaper-title {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="container top-bar-content">
-            <div>Sobre todo</div>
-            <div>Normalizador</div>
-            <div>Superior</div>
-        </div>
-    </div>
-    
     <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="logo-section">
-                <div class="logo">Jornal do Commercio</div>
-                <div class="tagline">Informação com credibilidade</div>
-            </div>
-            
-            <nav class="nav-menu">
-                <a href="#">Política</a>
-                <a href="#">Economia</a>
-                <a href="#">Brasil</a>
-                <a href="#">Mundo</a>
-                <a href="#">Cultura</a>
-                <a href="#">Esportes</a>
-            </nav>
+    <header class="header">
+        <div class="newspaper-title">JORNAL DO COMMERCIO</div>
+        <div class="tagline">Informação com credibilidade</div>
+        
+        <!-- Navegação -->
+        <nav class="nav-menu">
+            <a href="#">POLÍTICA</a>
+            <a href="#">ECONOMIA</a>
+            <a href="#">BRASIL</a>
+            <a href="#">MUNDO</a>
+            <a href="#">CULTURA</a>
+            <a href="#">ESPORTES</a>
+        </nav>
+        
+        <!-- BARRA DE PESQUISA ADICIONADA AQUI -->
+        <div class="search-section">
+            <form class="search-container" id="search-form">
+                <input type="text" class="search-input" placeholder="Buscar notícias, artigos, temas..." id="search-input">
+                <button type="submit" class="search-button">PESQUISAR</button>
+            </form>
         </div>
     </header>
     
     <!-- Main Content -->
-    <div class="container">
-        <div class="main-content">
-            <!-- Conteúdo Principal -->
-            <div class="content-left">
-                <!-- Artigo em Destaque -->
-                <div class="featured-article">
-                    <h1>A really compelling headline</h1>
-                    <p>Call out a feature, benefit, or value of your site. Then link to a page where people can learn more about it.</p>
-                    <hr>
-                    
-                    <h2>Brasileiros que ficaram presos em Israel são recebidos por apoiadores em SP</h2>
-                    <p>Traca brasileiras, onde eles a circulação federal, utilizando fim (PT-CE), chegariam hoje ao Brasil, após serem presas por final quando estavam abaixo da Índria que tentava chegar a Gaza...</p>
-                    <a href="#" class="read-more">Veja mais →</a>
-                    <hr>
-                    
-                    <h2>Governo sofre derrota e vê caducar MP que traria R$ 17 bilhões aos cofres</h2>
-                    <p>Foram 325 a 195 votos pelo Submetido. O governo não teve votos suficientes para manter a análise do texto. O deputado Kim Kasapati (União Rural-SP) apresentou um pedido para a medida provisória ser retirado da pauta de condições à RJ aprovação...</p>
-                    <a href="#" class="read-more">Veja mais →</a>
-                    <hr>
-                    
-                    <h2>Maior desafio na transição energética no Brasil é substituir diesel, diz diretor da AMP</h2>
-                    <p>O diretor da Agência Nacional do Perdoso, Olá-Natural e Biocombustíveis (NOP) Pobre nossas conexões nesta quinta-feira. 9, que a substituição do diretor no setor de transportes pode ser considerada como o "modelo detalh" na transição energética no Brasil...</p>
-                    <a href="#" class="read-more">Veja mais →</a>
-                </div>
-                
-                <!-- Grade de Artigos -->
-                <div class="article-grid">
-                    <div class="article-card">
-                        <h2>Justiça Federal autoriza edital de Medicina da UFFE para assentados da reforma agrária</h2>
-                        <span class="category-tag">POLÍTICA</span>
-                        <a href="#" class="read-more">Saiba mais →</a>
-                    </div>
-                    
-                    <div class="article-card">
-                        <h2>Lucro Real x Lucro Presumidor migrar de regime pode gerar economia milionária</h2>
-                        <span class="category-tag">ECONOMIA</span>
-                        <a href="#" class="read-more">Saiba mais →</a>
-                    </div>
-
-                    <div class="article-card">
-                        <h2>Governo cria comitê de enfrentamento da crise do metanol</h2>
-                        <span class="category-tag">BRASIL</span>
-                        <a href="#" class="read-more">Saiba mais →</a>
-                    </div>
-                </div>
+    <div class="main-content">
+        <!-- Conteúdo Principal -->
+        <div class="content-left">
+            <!-- Manchete Principal -->
+            <div class="headline-section">
+                <h1 class="main-headline">A really compelling headline</h1>
+                <p class="headline-description">Call out a feature, benefit, or value of your site. Then link to a page where people can learn more about it.</p>
             </div>
             
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Seção AO VIVO -->
-                <div class="live-section">
-                    <h2>AO VIVO</h2>
-                    <p>Canal</p>
-                </div>
-                
-                <!-- Informações do Dia em formato de tabela -->
-                <div class="info-section">
-                    <h3>Informações do Dia</h3>
-                    <table class="info-table">
-                        <tr>
-                            <td class="info-label">Previsão diária</td>
-                            <td class="info-value">30°C / 27°C</td>
-                        </tr>
-                        <tr>
-                            <td class="info-label">Cotação do dia</td>
-                            <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
-                        </tr>
-                        <tr>
-                            <td class="info-label">Previsão Marés Recife</td>
-                            <td class="info-value">---</td>
-                        </tr>
-                        <tr>
-                            <td class="info-label">MEGA SENA N 2926</td>
-                            <td class="info-value">---</td>
-                        </tr>
-                    </table>
-                </div>
+            <!-- Artigos -->
+            <div class="article">
+                <h2>Brasileiros que ficaram presos em Israel são recebidos por apoiadores em SP</h2>
+                <p>Trace brasileiras, onde eles a circulação federal, utilizando fim (PT-CE), chegariam hoje ao Brasil, após serem presas por final quando estavam abaixo da Índria que tentava chegar a Gaza...</p>
+                <a href="#" class="read-more">Veja mais →</a>
+            </div>
+            
+            <div class="article">
+                <h2>Governo sofre derrota e vê caducar MP que traria R$ 17 bilhões aos cofres</h2>
+                <p>Foram 395 a 195 votos pelo Submetido. O governo não teve votos suficientes para manter a análise do texto. O deputado Vice-Presidente (Tedio, Brasil) em consonância em análise entre o analista exercício ou retirado de nome do candidato à PF.</p>
+                <a href="#" class="read-more">Veja mais →</a>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Seção AO VIVO -->
+            <div class="live-section">
+                <h2>AO VIVO</h2>
+                <p>Canal</p>
+            </div>
+            
+            <!-- Informações do Dia -->
+            <div class="info-section">
+                <h3>Informações do Dia</h3>
+                <table class="info-table">
+                    <tr>
+                        <td class="info-label">Previsão diária</td>
+                        <td class="info-value">30°C / 27°C</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Cotação do dia</td>
+                        <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Previsão Marés Recife</td>
+                        <td class="info-value">--</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">MEGA SENA N 8986</td>
+                        <td class="info-value">--</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
     
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Jornal do Commercio</h3>
-                    <ul>
-                        <li><a href="#">Sobre nós</a></li>
-                        <li><a href="#">Contato</a></li>
-                        <li><a href="#">Anuncie</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Seções</h3>
-                    <ul>
-                        <li><a href="#">Política</a></li>
-                        <li><a href="#">Economia</a></li>
-                        <li><a href="#">Brasil</a></li>
-                        <li><a href="#">Mundo</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Redes Sociais</h3>
-                    <ul>
-                        <li><a href="#">Facebook</a></li>
-                        <li><a href="#">Twitter</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#">YouTube</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                &copy; 2025 Jornal do Commercio. Todos os direitos reservados.
-            </div>
-        </div>
+        <p>&copy; 2025 Jornal do Commercio. Todos os direitos reservados.</p>
     </footer>
+
+    <script>
+        // Função para a barra de pesquisa
+        document.getElementById('search-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchTerm = document.getElementById('search-input').value.trim();
+            
+            if (searchTerm) {
+                alert(`Buscando por: "${searchTerm}"\n\nEsta funcionalidade pode ser integrada com seu backend Django.`);
+            } else {
+                alert('Por favor, digite um termo para buscar.');
+            }
+        });
+    </script>
 </body>
 </html>
