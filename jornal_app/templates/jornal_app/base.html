@@ -10,9 +10,11 @@
 </head>
 <body>
     <header class="header">
+
         <div class="newspaper-title">JORNAL DO COMMERCIO</div>
         <div class="tagline">Informação com credibilidade</div>
         
+
         <nav class="nav-menu">
             {% for categoria in categorias %}
                 <a href="{% url 'jornal_app:noticias_por_categoria' pk=categoria.pk %}">{{ categoria.nome|upper }}</a>
@@ -53,14 +55,6 @@
                         <td class="info-label">Cotação do dia</td>
                         <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
                     </tr>
-                    <tr>
-                        <td class="info-label">Previsão Marés Recife</td>
-                        <td class="info-value">--</td>
-                    </tr>
-                    <tr>
-                        <td class.="info-label">MEGA SENA N 8986</td>
-                        <td class.="info-value">--</td>
-                    </tr>
                 </table>
             </div>
             {% endblock %}
@@ -70,7 +64,5 @@
     <footer>
         <p>&copy; 2025 Jornal do Commercio. Todos os direitos reservados.</p>
     </footer>
-
-    <script src="{% static 'js/home.js' %}"></script>
 </body>
 </html>

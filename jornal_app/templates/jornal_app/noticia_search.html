@@ -1,30 +1,30 @@
-{% extends "jornal_app/base.html" %} {% block content %}
-<div class.="main-content">
-    <div class.="content-left">
-        
-        <h1>Resultados da busca por: "{{ query }}"</h1>
-        <hr>
+{% extends "jornal_app/base.html" %}
 
-        {% if noticias %}
-            {% for noticia in noticias %}
-                <div class.="article">
-                    <h2>
-                        <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}">
-                            {{ noticia.titulo }}
-                        </a>
-                        {% if noticia.exclusiva %}
-                            <span>[Exclusivo]</span>
-                        {% endif %}
-                    </h2>
-                    <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
-                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more">Veja mais →</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Nenhuma notícia encontrada com os termos "{{ query }}".</p>
-        {% endif %}
+{% block title %}Resultados para "{{ query }}" - Jornal do Commercio{% endblock %}
 
-    </div>
+{% block main_content %}
     
-    </div>
+    <h1>Resultados da busca por: "{{ query }}"</h1>
+    <hr>
+
+    {% if noticias %}
+        {% for noticia in noticias %}
+            <div class="article">
+                <h2>
+                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}">
+                        {{ noticia.titulo }}
+                    </a>
+                    {% if noticia.exclusiva %}
+                        <span style="color: #c00;">[Exclusivo]</span>
+                    {% endif %}
+                </h2>
+                <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more">Veja mais →</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Nenhum resultado encontrado para os termos pesquisados.</p>
+        <p>Tente usar palavras-chave diferentes ou mais genéricas.</p>
+    {% endif %}
+
 {% endblock %}
