@@ -13,7 +13,7 @@ class NoticiaDetailView(DetailView):
     Exibe uma notícia completa.
     """
     model = Noticia
-    template_name = 'jornal_app/noticia_detail.html'
+    template_name = 'jornal_app/artigo.html'
     context_object_name = 'noticia'
 
     def dispatch(self, request, *args, **kwargs):
@@ -31,8 +31,6 @@ class HomeView(TemplateView):
         context['destaques'] = Noticia.objects.filter(destaque=True).order_by('-data_publicacao')[:3]
         
         context['artigos_recentes'] = Noticia.objects.filter(destaque=False).order_by('-data_publicacao')[:3]
-        
-        context['categorias'] = Categoria.objects.all() 
         
         # 4. Informações do Dia (Mantemos estático por enquanto)
         #    No futuro, isso pode vir de uma API de clima/finanças.

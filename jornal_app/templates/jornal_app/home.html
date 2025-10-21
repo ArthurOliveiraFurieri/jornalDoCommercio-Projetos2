@@ -1,64 +1,26 @@
 {% extends "jornal_app/base.html" %}
 
-{% block content %}
-
-    <div class="main-content">
-        <div class="content-left">
-            
-            {% with destaque_principal=destaques.0 %}
-                {% if destaque_principal %}
-                <div class="headline-section">
-                    <h1 class="main-headline">{{ destaque_principal.titulo }}</h1>
-                    <p class="headline-description">{{ destaque_principal.conteudo|truncatewords:25|linebreaksbr }}</p>
-                    <a href="{% url 'jornal_app:noticia_detail' pk=destaque_principal.pk %}" class="read-more">Veja mais →</a>
-                </div>
-                {% else %}
-                <div class="headline-section">
-                    <h1 class="main-headline">Bem-vindo ao Jornal do Commercio</h1>
-                    <p class="headline-description">Nossos editores estão preparando o conteúdo. Volte em breve!</p>
-                </div>
-                {% endif %}
-            {% endwith %}
-            
-            {% for noticia in destaques|slice:"1:3" %}
-            <div class="article">
-                <h2>{{ noticia.titulo }}</h2>
-                <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
-                <a href="{% url 'jornal_app:noticia_detail' pk=noticia.pk %}" class="read-more">Veja mais →</a>
-            </div>
-            {% endfor %}
-
+{% block main_content %}
+    {% with destaque_principal=destaques.0 %}
+        {% if destaque_principal %}
+        <div class="headline-section">
+            <h1 class="main-headline">{{ destaque_principal.titulo }}</h1>
+            <p class="headline-description">{{ destaque_principal.conteudo|truncatewords:25|linebreaksbr }}</p>
+            <a href="{% url 'jornal_app:artigo' pk=destaque_principal.pk %}" class="read-more">Veja mais →</a>
         </div>
-        
-        <div class="sidebar">
-            <div class="live-section">
-                <h2>AO VIVO</h2>
-                <p>Canal</p>
-            </div>
-            
-            <div class="info-section">
-                <h3>Informações do Dia</h3>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Previsão diária</td>
-                        <td class.="info-value">{{ informacoes_dia.temperatura_max }} / {{ informacoes_dia.temperatura_min }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Cotação do dia</td>
-                        <td class.="info-value">Dólar {{ informacoes_dia.dolar }}<br>Euro {{ informacoes_dia.euro }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Previsão Marés Recife</td>
-                        <td class.="info-value">--</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">MEGA SENA N 8986</td>
-                        <td class.="info-value">--</td>
-                    </tr>
-                </table>
-            </div>
+        {% else %}
+        <div class="headline-section">
+            <h1 class="main-headline">Bem-vindo ao Jornal do Commercio</h1>
+            <p class="headline-description">Nossos editores estão preparando o conteúdo. Volte em breve!</p>
         </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% for noticia in destaques|slice:"1:3" %}
+    <div class="article">
+        <h2>{{ noticia.titulo }}</h2>
+        <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+        <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more">Veja mais →</a>
     </div>
-
+    {% endfor %}
 {% endblock %}
-

@@ -1,0 +1,25 @@
+{% extends "jornal_app/base.html" %} 
+
+{% block main_content %}
+    
+    <h1>Notícias em: {{ categoria.nome }}</h1>
+    <hr>
+
+    {% for noticia in noticias %}
+        <div class="article">
+            <h2>
+                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}">
+                    {{ noticia.titulo }}
+                </a>
+                {% if noticia.exclusiva %}
+                    <span style="color: #c00;">[Exclusivo]</span>
+                {% endif %}
+            </h2>
+            <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+            <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more">Veja mais →</a>
+        </div>
+    {% empty %}
+        <p>Ainda não há notícias publicadas nesta categoria.</p>
+    {% endfor %}
+
+{% endblock %}

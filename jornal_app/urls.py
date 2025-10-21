@@ -16,9 +16,9 @@ urlpatterns = [
     
     # URLs para o leitor
     path('categorias/<int:pk>/', NoticiasPorCategoriaView.as_view(), name='noticias_por_categoria'),
-    path('noticia/<int:pk>/', NoticiaDetailView.as_view(), name='noticia_detail'),
+    path('noticia/<int:pk>/', NoticiaDetailView.as_view(), name='artigo'),
 
-    # URL da Busca (NOVA)
+    # URL da Busca
     path('busca/', noticia_search, name='noticia_search'),
 
     # URLs para o painel do editor
