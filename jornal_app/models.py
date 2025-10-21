@@ -14,7 +14,7 @@ class Categoria(models.Model):
         unique=True,
         verbose_name="Nome da Categoria",
         help_text="O nome deve ser único para cada categoria."
-    )
+    ) 
 
     class Meta:
         verbose_name = "Categoria"
@@ -63,57 +63,4 @@ class Perfil(models.Model):
         related_name='perfil'
     )
 
-    @property
-    def is_assinante_ativo(self):
-        """
-        Propriedade dinâmica que verifica se o usuário tem uma assinatura ativa.
-        """
-        return self.usuario.assinaturas.filter(
-            status='ATIVA',
-            data_fim__gte=timezone.now()
-        ).exists()
 
-    def __str__(self):
-        return f"Perfil de {self.usuario.username}"
-
-class Assinatura(models.Model):
-    """
-    Representa a assinatura de um usuário no jornal.
-    """
-    class StatusAssinatura(models.TextChoices):
-        ATIVA = 'ATIVA', 'Ativa'
-        CANCELADA = 'CANCELADA', 'Cancelada'
-        EXPIRADA = 'EXPIRADA', 'Expirada'
-        INADIMPLENTE = 'INADIMPLENTE', 'Inadimplente'
-
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='assinaturas'
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=StatusAssinatura.choices,
-        default=StatusAssinatura.ATIVA
-    )
-    data_inicio = models.DateTimeField(default=timezone.now)
-    data_fim = models.DateTimeField()
-    renovacao_automatica = models.BooleanField(default=True)
-
-    id_assinatura_gateway = models.CharField(max_length=100, blank=True, null=True, unique=True,
-        help_text="ID da assinatura gerado pelo gateway de pagamento (ex: Stripe, Pagar.me)")
-    id_cliente_gateway = models.CharField(max_length=100, blank=True, null=True,
-        help_text="ID do cliente gerado pelo gateway de pagamento")
-
-    criado_em = models.DateTimeField(auto_now_add=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Assinatura"
-        verbose_name_plural = "Assinaturas"
-        ordering = ['-data_fim']
-
-    def __str__(self):
-        return f"Assinatura de {self.usuario.username} ({self.get_status_display()})"
-
-    
