@@ -1,101 +1,64 @@
-{% load static %}
+{% extends "jornal_app/base.html" %}
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jornal do Commercio</title>
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
-    
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="newspaper-title">JORNAL DO COMMERCIO</div>
-        <div class="tagline">Informação com credibilidade</div>
-        
-        <!-- Navegação -->
-        <nav class="nav-menu">
-            <a href="#">POLÍTICA</a>
-            <a href="#">ECONOMIA</a>
-            <a href="#">BRASIL</a>
-            <a href="#">MUNDO</a>
-            <a href="#">CULTURA</a>
-            <a href="#">ESPORTES</a>
-        </nav>
-        
-        <!-- BARRA DE PESQUISA -->
-        <div class="search-section">
-            <form class="search-container" id="search-form">
-                <input type="text" class="search-input" placeholder="Buscar notícias, artigos, temas..." id="search-input">
-                <button type="submit" class="search-button">PESQUISAR</button>
-            </form>
-        </div>
-    </header>
-    
-    <!-- Conteudo Principal -->
+{% block content %}
+
     <div class="main-content">
-        <!-- Conteúdo Principal -->
         <div class="content-left">
-            <!-- Manchete Principal -->
-            <div class="headline-section">
-                <h1 class="main-headline">A really compelling headline</h1>
-                <p class="headline-description">Call out a feature, benefit, or value of your site. Then link to a page where people can learn more about it.</p>
-            </div>
             
-            <!-- Artigos -->
-            <div class="article">
-                <h2>Brasileiros que ficaram presos em Israel são recebidos por apoiadores em SP</h2>
-                <p>Trace brasileiras, onde eles a circulação federal, utilizando fim (PT-CE), chegariam hoje ao Brasil, após serem presas por final quando estavam abaixo da Índria que tentava chegar a Gaza...</p>
-                <a href="#" class="read-more">Veja mais →</a>
-            </div>
+            {% with destaque_principal=destaques.0 %}
+                {% if destaque_principal %}
+                <div class="headline-section">
+                    <h1 class="main-headline">{{ destaque_principal.titulo }}</h1>
+                    <p class="headline-description">{{ destaque_principal.conteudo|truncatewords:25|linebreaksbr }}</p>
+                    <a href="{% url 'jornal_app:noticia_detail' pk=destaque_principal.pk %}" class="read-more">Veja mais →</a>
+                </div>
+                {% else %}
+                <div class="headline-section">
+                    <h1 class="main-headline">Bem-vindo ao Jornal do Commercio</h1>
+                    <p class="headline-description">Nossos editores estão preparando o conteúdo. Volte em breve!</p>
+                </div>
+                {% endif %}
+            {% endwith %}
             
+            {% for noticia in destaques|slice:"1:3" %}
             <div class="article">
-                <h2>Governo sofre derrota e vê caducar MP que traria R$ 17 bilhões aos cofres</h2>
-                <p>Foram 395 a 195 votos pelo Submetido. O governo não teve votos suficientes para manter a análise do texto. O deputado Vice-Presidente (Tedio, Brasil) em consonância em análise entre o analista exercício ou retirado de nome do candidato à PF.</p>
-                <a href="#" class="read-more">Veja mais →</a>
+                <h2>{{ noticia.titulo }}</h2>
+                <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+                <a href="{% url 'jornal_app:noticia_detail' pk=noticia.pk %}" class="read-more">Veja mais →</a>
             </div>
+            {% endfor %}
+
         </div>
         
-        <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Seção AO VIVO -->
             <div class="live-section">
                 <h2>AO VIVO</h2>
                 <p>Canal</p>
             </div>
             
-            <!-- Informações do Dia -->
             <div class="info-section">
                 <h3>Informações do Dia</h3>
                 <table class="info-table">
                     <tr>
                         <td class="info-label">Previsão diária</td>
-                        <td class="info-value">30°C / 27°C</td>
+                        <td class.="info-value">{{ informacoes_dia.temperatura_max }} / {{ informacoes_dia.temperatura_min }}</td>
                     </tr>
                     <tr>
                         <td class="info-label">Cotação do dia</td>
-                        <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
+                        <td class.="info-value">Dólar {{ informacoes_dia.dolar }}<br>Euro {{ informacoes_dia.euro }}</td>
                     </tr>
                     <tr>
                         <td class="info-label">Previsão Marés Recife</td>
-                        <td class="info-value">--</td>
+                        <td class.="info-value">--</td>
                     </tr>
                     <tr>
                         <td class="info-label">MEGA SENA N 8986</td>
-                        <td class="info-value">--</td>
+                        <td class.="info-value">--</td>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
-    
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 Jornal do Commercio. Todos os direitos reservados.</p>
-    </footer>
 
-    <script src="{% static 'js/home.js' %}"></script>
-</body>
-</html>
+{% endblock %}
+

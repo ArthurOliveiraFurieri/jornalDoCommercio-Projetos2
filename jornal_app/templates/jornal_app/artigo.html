@@ -1,0 +1,21 @@
+{% extends "jornal_app_app/base.html" %}
+
+{% block content %}
+    <article>
+        <h1>{{ noticia.titulo }}</h1>
+        {% if noticia.exclusiva %}
+            <p><strong>Este é um conteúdo exclusivo para assinantes.</strong></p>
+        {% endif %}
+        
+        <p>
+            <strong>Categoria:</strong> {{ noticia.categoria.nome }} <br>
+            <strong>Publicado em:</strong> {{ noticia.data_publicacao|date:"d/m/Y H:i" }}
+        </p>
+        
+        <hr>
+
+        <div>
+            {{ noticia.conteudo|safe|linebreaks }}
+        </div>
+    </article>
+{% endblock %}

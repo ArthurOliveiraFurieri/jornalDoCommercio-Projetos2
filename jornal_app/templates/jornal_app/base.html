@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{% block title %}Jornal do Commercio{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    
+    </head>
+<body>
+    <header class="header">
+        <div class="newspaper-title">JORNAL DO COMMERCIO</div>
+        <div class="tagline">Informação com credibilidade</div>
+        
+        <nav class="nav-menu">
+            {% for categoria in categorias %}
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=categoria.pk %}">{{ categoria.nome|upper }}</a>
+            {% endfor %}
+            </nav>
+        
+        <div class="search-section">
+            <form class="search-container" id="search-form" 
+                  action="{% url 'jornal_app:noticia_search' %}" method="GET">
+                <input type="text" class.="search-input" placeholder="Buscar notícias, artigos, temas..." 
+                       id="search-input" name="q">
+                <button type="submit" class="search-button">PESQUISAR</button>
+            </form>
+        </div>
+    </header>
+    
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <p>&copy; 2025 Jornal do Commercio. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="{% static 'js/home.js' %}"></script>
+</body>
+</html>

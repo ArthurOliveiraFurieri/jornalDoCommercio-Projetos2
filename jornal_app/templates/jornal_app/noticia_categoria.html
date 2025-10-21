@@ -1,0 +1,25 @@
+{% extends "jornal_app/base.html" %} {% block content %}
+<div class.="main-content">
+    <div class.="content-left">
+        
+        <h1>Notícias em: {{ categoria.nome }}</h1>
+        <hr>
+
+        {% for noticia in noticias %}
+            <div class.="article">
+                <h2>
+                    <a href="{% url 'jornal_app:noticia_detail' pk=noticia.pk %}">
+                        {{ noticia.titulo }}
+                    </a>
+                </h2>
+                <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+                <a href="{% url 'jornal_app:noticia_detail' pk=noticia.pk %}" class="read-more">Veja mais →</a>
+            </div>
+        {% empty %}
+            <p>Ainda não há notícias publicadas nesta categoria.</p>
+        {% endfor %}
+
+    </div>
+    
+    </div>
+{% endblock %}

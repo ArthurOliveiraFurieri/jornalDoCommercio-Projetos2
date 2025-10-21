@@ -37,11 +37,11 @@ class Noticia(models.Model):
         related_name='noticias',
         verbose_name="Categoria"
     )
-
-    exclusiva = models.BooleanField(
-        default=False, 
-        verbose_name="Conteúdo Exclusivo",
-        help_text="Marque se esta notícia é apenas para assinantes."
+    
+    destaque = models.BooleanField(
+        default=False,
+        verbose_name="Notícia em Destaque",
+        help_text="Marque para que esta notícia apareça na seção de destaques da homepage."
     )
 
     class Meta:

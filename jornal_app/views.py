@@ -4,64 +4,38 @@ from django.views.generic import ListView, CreateView, DeleteView, DetailView, T
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from django.db.models import Q
-
 from .models import Categoria, Noticia
 from .forms import CategoriaForm
-from .models import Categoria
 
-# --- VIEWS PARA O LEITOR ---
 
-from django.shortcuts import render
-from django.views.generic import TemplateView
-from .models import Categoria  # ← ADICIONE ESTA IMPORTACAÇÃO
+class NoticiaDetailView(DetailView):
+    """
+    Exibe uma notícia completa.
+    """
+    model = Noticia
+    template_name = 'jornal_app/noticia_detail.html'
+    context_object_name = 'noticia'
 
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
 class HomeView(TemplateView):
     """
-    Página inicial do jornal - para leitores
+    Página inicial do jornal 
     """
     template_name = 'jornal_app/home.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context['destaques'] = Noticia.objects.filter(destaque=True).order_by('-data_publicacao')[:3]
         
-        # Dados para a página inicial
-        context['destaques'] = [
-            {
-                'titulo': 'Brasileiros que ficaram presos em Israel são recebidos por apoiadores em SP',
-                'resumo': 'Traca brasileiras, onde eles a circulação federal, utilizando fim (PT-CE), chegariam hoje ao Brasil...',
-                'categoria': 'INTERNACIONAL'
-            },
-            {
-                'titulo': 'Governo sofre derrota e vê caducar MP que traria R$ 17 bilhões aos cofres',
-                'resumo': 'Foram 325 a 195 votos pelo Submetido. O governo não teve votos suficientes...',
-                'categoria': 'POLÍTICA'
-            },
-            {
-                'titulo': 'Maior desafio na transição energética no Brasil é substituir diesel, diz diretor da AMP',
-                'resumo': 'O diretor da Agência Nacional do Perdoso, Olá-Natural e Biocombustíveis...',
-                'categoria': 'ECONOMIA'
-            }
-        ]
+        context['artigos_recentes'] = Noticia.objects.filter(destaque=False).order_by('-data_publicacao')[:3]
         
-        context['artigos_recentes'] = [
-            {
-                'titulo': 'Justiça Federal autoriza edital de Medicina da UFFE para assentados da reforma agrária',
-                'categoria': 'POLÍTICA'
-            },
-            {
-                'titulo': 'Lucro Real x Lucro Presumidor migrar de regime pode gerar economia milionária',
-                'categoria': 'ECONOMIA'
-            },
-            {
-                'titulo': 'Governo cria comitê de enfrentamento da crise do metanol',
-                'categoria': 'BRASIL'
-            }
-        ]
+        context['categorias'] = Categoria.objects.all() 
         
-        # Categorias para o menu de navegação
-        context['categorias'] = Categoria.objects.all()  # ← AGORA VAI FUNCIONAR
-        
-        # Dados mockados (substitua por dados reais quando tiver)
+        # 4. Informações do Dia (Mantemos estático por enquanto)
+        #    No futuro, isso pode vir de uma API de clima/finanças.
         context['informacoes_dia'] = {
             'temperatura_max': '30°C',
             'temperatura_min': '27°C',
@@ -69,23 +43,8 @@ class HomeView(TemplateView):
             'euro': 'R$ 7,431'
         }
         
-        return context  # ← CORRIGIDO (tinha texto extra)
-
-class NoticiaDetailView(DetailView):
-    """
-    Detalhes de uma notícia específica
-    """
-    model = Noticia
-    template_name = 'jornal_app/noticia_detail.html'
-    context_object_name = 'noticia'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Notícias relacionadas (da mesma categoria)
-        context['noticias_relacionadas'] = Noticia.objects.filter(
-            categoria=self.object.categoria
-        ).exclude(pk=self.object.pk).order_by('-data_publicacao')[:4]
         return context
+
 
 class NoticiasPorCategoriaView(ListView):
     """
