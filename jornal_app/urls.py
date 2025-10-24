@@ -6,9 +6,11 @@ from .views import (
     CategoriaCreateView,
     CategoriaDeleteView,
     NoticiasPorCategoriaView,
-
     NoticiaDetailView,
+    ComentarioDeleteView,  
 )
+
+app_name = 'jornal_app'
 
 urlpatterns = [
     # --- URL DA HOME ---
@@ -25,4 +27,7 @@ urlpatterns = [
     path('editor/categorias/', CategoriaListView.as_view(), name='categoria_list'),
     path('editor/categorias/nova/', CategoriaCreateView.as_view(), name='categoria_create'),
     path('editor/categorias/<int:pk>/excluir/', CategoriaDeleteView.as_view(), name='categoria_delete'),
+    
+    # NOVAS URLs para comentários
+    path('comentario/<int:pk>/excluir/', ComentarioDeleteView.as_view(), name='comentario_delete'),
 ]

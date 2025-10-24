@@ -1,5 +1,5 @@
 from django import forms
-from .models import Categoria
+from .models import Categoria, Comentario
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -14,4 +14,19 @@ class CategoriaForm(forms.ModelForm):
             'nome': {
                 'unique': "Nome já utilizado. Categorias devem ter nomes únicos.",
             },
+        }
+
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['texto']
+        widgets = {
+            'texto': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Digite seu comentário...'
+            }),
+        }
+        labels = {
+            'texto': 'Seu comentário'
         }

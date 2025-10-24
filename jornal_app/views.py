@@ -4,8 +4,10 @@ from django.views.generic import ListView, CreateView, DeleteView, DetailView, T
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from django.db.models import Q
-from .models import Categoria, Noticia
-from .forms import CategoriaForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from .models import Categoria, Noticia, Comentario
+from .forms import CategoriaForm, ComentarioForm
 
 
 class NoticiaDetailView(DetailView):
@@ -19,6 +21,45 @@ class NoticiaDetailView(DetailView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
     
+    def get_context_data(self, **kwargs):
+        """
+        Adiciona o formulário de comentários e a lista de comentários ao contexto.
+        """
+        context = super().get_context_data(**kwargs)
+        noticia = self.get_object()
+        
+        # Comentários ativos desta notícia
+        context['comentarios'] = noticia.comentarios.filter(ativo=True)
+        
+        # Formulário para novo comentário
+        context['comentario_form'] = ComentarioForm()
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        """
+        Processa o envio de novos comentários.
+        """
+        if not request.user.is_authenticated:
+            messages.error(request, 'Você precisa estar logado para comentar.')
+            return redirect('login')
+            
+        noticia = self.get_object()
+        comentario_form = ComentarioForm(request.POST)
+        
+        if comentario_form.is_valid():
+            novo_comentario = comentario_form.save(commit=False)
+            novo_comentario.noticia = noticia
+            novo_comentario.autor = request.user
+            novo_comentario.save()
+            messages.success(request, 'Comentário adicionado com sucesso!')
+            return redirect('jornal_app:artigo', pk=noticia.pk)
+        else:
+            # Se o formulário for inválido, reexibe a página com os erros
+            context = self.get_context_data()
+            context['comentario_form'] = comentario_form
+            return self.render_to_response(context)
+
 class HomeView(TemplateView):
     """
     Página inicial do jornal 
@@ -68,6 +109,39 @@ class NoticiasPorCategoriaView(ListView):
         context['categoria'] = self.categoria
         return context
 
+# --- VIEWS PARA COMENTÁRIOS ---
+
+@method_decorator(login_required, name='dispatch')
+class ComentarioDeleteView(DeleteView):
+    """
+    Exclui um comentário.
+    """
+    model = Comentario
+    template_name = 'jornal_app/comentario_confirm_delete.html'
+    
+    def get_success_url(self):
+        """
+        Redireciona para a notícia após excluir o comentário.
+        """
+        noticia_id = self.object.noticia.id
+        return reverse_lazy('jornal_app:artigo', kwargs={'pk': noticia_id})
+    
+    def delete(self, request, *args, **kwargs):
+        """
+        Sobrescreve o método delete para verificar permissões e mostrar mensagens.
+        """
+        self.object = self.get_object()
+        
+        # Verifica se o usuário é o autor do comentário ou staff
+        if request.user == self.object.autor or request.user.is_staff:
+            noticia_id = self.object.noticia.id
+            self.object.delete()
+            messages.success(request, "Comentário excluído com sucesso!")
+            return redirect(self.get_success_url())
+        else:
+            messages.error(request, "Você não tem permissão para excluir este comentário.")
+            return redirect(self.get_success_url())
+
 # --- VIEWS PARA O EDITOR ---
 
 class CategoriaListView(ListView):
@@ -114,7 +188,6 @@ class CategoriaDeleteView(DeleteView):
                 f"Não é possível excluir a categoria '{self.object.nome}' pois ela está vinculada a uma ou mais notícias."
             )
             return redirect(self.success_url)
-
 # --- VIEWS EXTRAS (OPCIONAIS) ---
 
 def noticia_search(request):
