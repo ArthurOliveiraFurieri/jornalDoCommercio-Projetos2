@@ -62,11 +62,11 @@
                     </button>
                 </form>
             </div>
-            {% else %}
-            <div class="alert alert-info" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 4px; border: 1px solid #bee5eb; margin-bottom: 30px;">
-                <a href="{% url 'login' %}?next={{ request.path }}" style="color: #007bff; text-decoration: underline;">Faça login</a> para comentar.
-            </div>
-            {% endif %}
+           {% else %}
+<div class="alert alert-info" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 4px; border: 1px solid #bee5eb; margin-bottom: 30px;">
+   <a href="/accounts/login/?next={{ request.path }}" style="color: #007bff; text-decoration: underline;">Faça login</a> para comentar.
+</div>
+{% endif %}
 
             <!-- Lista de Comentários -->
             <div class="comentarios-lista">
