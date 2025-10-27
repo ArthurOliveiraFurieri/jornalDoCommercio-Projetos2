@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from .models import Categoria, Noticia, Comentario
 from .forms import CategoriaForm, ComentarioForm
+from django.contrib.admin.views.decorators import staff_member_required
+
 
 
 class NoticiaDetailView(DetailView):
@@ -208,3 +210,19 @@ def noticia_search(request):
         'query': query
     }
     return render(request, 'jornal_app/noticia_search.html', context)
+@staff_member_required
+def importar_noticias(request):
+    if request.method == 'POST':
+        try:
+            from .news_simple import importar_noticias_simples
+            quantidade = importar_noticias_simples()
+            if quantidade > 0:
+                messages.success(request, f'{quantidade} notícias importadas com sucesso!')
+            else:
+                messages.info(request, 'Nenhuma nova notícia foi importada.')
+        except Exception as e:
+            messages.error(request, f'Erro ao importar notícias: {str(e)}')
+        
+        return redirect('admin:index')
+    
+    return render(request, 'admin/importar_noticias.html')
