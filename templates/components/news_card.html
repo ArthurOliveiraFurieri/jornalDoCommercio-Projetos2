@@ -1,0 +1,39 @@
+{% load static %}
+<article class="news-card">
+    {% if news.featured_image %}
+        <div class="news-image">
+            <a href="{{ news.get_absolute_url }}">
+                <img src="{{ news.featured_image.url }}" alt="{{ news.title }}">
+            </a>
+            <span class="news-category">{{ news.category.name|upper }}</span>
+        </div>
+    {% endif %}
+
+    <div class="news-content">
+        <div class="news-meta">
+            <span class="news-date">
+                <i class="far fa-calendar"></i>
+                {{ news.published_at|date:"d/m/Y" }}
+            </span>
+            <span class="news-author">
+                <i class="far fa-user"></i>
+                {{ news.author.get_full_name|default:news.author.username }}
+            </span>
+        </div>
+
+        <h2 class="news-title">
+            <a href="{{ news.get_absolute_url }}">{{ news.title }}</a>
+        </h2>
+
+        <p class="news-excerpt">{{ news.excerpt }}</p>
+
+        <div class="news-footer">
+            <a href="{{ news.get_absolute_url }}" class="read-more">
+                Leia mais <i class="fas fa-arrow-right"></i>
+            </a>
+            <span class="news-views">
+                <i class="far fa-eye"></i> {{ news.views_count }}
+            </span>
+        </div>
+    </div>
+</article>

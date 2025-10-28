@@ -29,6 +29,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Apps do projeto
+    'apps.core',
+    'apps.news',
+    'apps.live',
+    'apps.advertising',
+
+    # App antigo (manter por enquanto para migração)
     'jornal_app',
 ]
 
@@ -53,10 +61,14 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'jornal_app.context_processors.menu_categorias',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                # Context processors do projeto
+                'apps.core.context_processors.site_settings',
             ],
         },
     },
@@ -114,7 +126,18 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login URLs
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

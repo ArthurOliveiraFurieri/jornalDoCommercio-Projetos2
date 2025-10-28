@@ -1,0 +1,45 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="news-section">
+        <div class="category-header">
+            <h1 class="page-title">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="category-description">{{ category.description }}</p>
+            {% endif %}
+        </div>
+
+        <div class="news-grid">
+            {% for news in news_list %}
+                {% include 'components/news_card.html' with news=news %}
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-newspaper fa-3x"></i>
+                    <p>Nenhuma notícia nesta categoria ainda.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginação -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Anterior</a>
+                {% endif %}
+
+                <span class="page-current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">Próxima</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

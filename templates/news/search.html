@@ -1,0 +1,28 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Busca: {{ query }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="news-section">
+        <div class="search-header">
+            <h1 class="page-title">Resultados da busca</h1>
+            <p class="search-query">Você buscou por: <strong>"{{ query }}"</strong></p>
+            <p class="search-count">{{ news_list.count }} resultado{{ news_list.count|pluralize }} encontrado{{ news_list.count|pluralize }}</p>
+        </div>
+
+        <div class="news-grid">
+            {% for news in news_list %}
+                {% include 'components/news_card.html' with news=news %}
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>Nenhuma notícia encontrada para "{{ query }}".</p>
+                    <p>Tente buscar com outros termos.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

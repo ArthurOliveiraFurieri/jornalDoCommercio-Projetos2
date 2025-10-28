@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section com Notícias em Destaque -->
+    <section class="hero-section">
+        <h1 class="section-title">Destaques</h1>
+
+        <div class="hero-grid">
+            {% for news in featured_news %}
+                <div class="hero-item {% if forloop.first %}hero-main{% endif %}">
+                    {% if news.featured_image %}
+                        <img src="{{ news.featured_image.url }}" alt="{{ news.title }}" class="hero-image">
+                    {% endif %}
+                    <div class="hero-overlay">
+                        <span class="hero-category">{{ news.category.name|upper }}</span>
+                        <h2 class="hero-title">
+                            <a href="{{ news.get_absolute_url }}">{{ news.title }}</a>
+                        </h2>
+                        <p class="hero-excerpt">{{ news.excerpt|truncatewords:20 }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    <p>Nenhuma notícia em destaque no momento.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Notícias Recentes -->
+    <section class="news-section">
+        <h2 class="section-title">Notícias Recentes</h2>
+
+        <div class="news-grid">
+            {% for news in recent_news %}
+                {% include 'components/news_card.html' with news=news %}
+            {% empty %}
+                <div class="empty-state">
+                    <p>Nenhuma notícia disponível no momento.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="view-more">
+            <a href="{% url 'news:list' %}" class="btn btn-primary">
+                Ver todas as notícias
+            </a>
+        </div>
+    </section>
+</div>
+
+{% include 'components/info_bar.html' %}
+{% endblock %}

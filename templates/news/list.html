@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Todas as Notícias - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="news-section">
+        <h1 class="page-title">Todas as Notícias</h1>
+
+        <div class="news-grid">
+            {% for news in news_list %}
+                {% include 'components/news_card.html' with news=news %}
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-newspaper fa-3x"></i>
+                    <p>Nenhuma notícia encontrada.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginação -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="page-link">&laquo; Primeira</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Anterior</a>
+                {% endif %}
+
+                <span class="page-current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">Próxima</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Última &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

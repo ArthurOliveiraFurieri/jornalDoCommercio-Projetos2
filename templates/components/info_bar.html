@@ -1,0 +1,23 @@
+{% load static %}
+<div class="info-bar">
+    <div class="container">
+        <div class="info-items">
+            <div class="info-item">
+                <i class="fas fa-temperature-high"></i>
+                <span>Temp: {{ info_bar.temperature_max }} / {{ info_bar.temperature_min }}</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Dólar: {{ info_bar.dolar }}</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-euro-sign"></i>
+                <span>Euro: {{ info_bar.euro }}</span>
+            </div>
+            <div class="info-item">
+                <i class="far fa-clock"></i>
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </div>
+</div>

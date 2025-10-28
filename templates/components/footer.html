@@ -1,0 +1,67 @@
+{% load static %}
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-content">
+            <!-- About Section -->
+            <div class="footer-section">
+                <h3>{{ site_config.site_name }}</h3>
+                <p>{{ site_config.site_description|truncatewords:20 }}</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h3>Links Rápidos</h3>
+                <ul>
+                    <li><a href="{% url 'core:home' %}">Início</a></li>
+                    <li><a href="{% url 'news:list' %}">Notícias</a></li>
+                    {% for item in menu_items|slice:":4" %}
+                        <li><a href="{{ item.url }}">{{ item.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Categories -->
+            <div class="footer-section">
+                <h3>Categorias</h3>
+                <ul>
+                    {% for category in categories|slice:":5" %}
+                        <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Contact & Social -->
+            <div class="footer-section">
+                <h3>Contato</h3>
+                {% if site_config.contact_email %}
+                    <p><i class="fas fa-envelope"></i> {{ site_config.contact_email }}</p>
+                {% endif %}
+                {% if site_config.contact_phone %}
+                    <p><i class="fas fa-phone"></i> {{ site_config.contact_phone }}</p>
+                {% endif %}
+
+                <div class="social-links">
+                    {% if site_config.facebook_url %}
+                        <a href="{{ site_config.facebook_url }}" target="_blank">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                    {% endif %}
+                    {% if site_config.twitter_url %}
+                        <a href="{{ site_config.twitter_url }}" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    {% endif %}
+                    {% if site_config.instagram_url %}
+                        <a href="{{ site_config.instagram_url }}" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} {{ site_config.site_name }}. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>

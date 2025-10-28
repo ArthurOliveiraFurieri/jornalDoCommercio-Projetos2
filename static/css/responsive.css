@@ -1,0 +1,241 @@
+/* ========================================
+   RESPONSIVE STYLES - Jornal do Commercio
+   ======================================== */
+
+/* Tablets and below (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-main {
+        grid-column: span 1;
+    }
+
+    .news-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+    }
+}
+
+/* Mobile devices (max-width: 768px) */
+@media (max-width: 768px) {
+    /* Typography */
+    h1 { font-size: var(--font-size-3xl); }
+    h2 { font-size: var(--font-size-2xl); }
+    h3 { font-size: var(--font-size-xl); }
+
+    /* Header */
+    .header-content {
+        flex-wrap: wrap;
+    }
+
+    .logo {
+        flex: 0 0 auto;
+    }
+
+    .search-bar {
+        order: 3;
+        flex: 1 0 100%;
+        max-width: 100%;
+    }
+
+    .user-menu {
+        flex: 0 0 auto;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    /* Category Bar */
+    .category-bar {
+        overflow-x: auto;
+    }
+
+    .category-list {
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .category-list::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .category-list::-webkit-scrollbar-thumb {
+        background-color: var(--secondary-color);
+        border-radius: var(--radius-full);
+    }
+
+    /* News Grid */
+    .news-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    /* Hero Section */
+    .hero-item {
+        height: 250px;
+    }
+
+    .hero-main {
+        height: 300px;
+    }
+
+    .hero-title a {
+        font-size: var(--font-size-xl);
+    }
+
+    /* News Card */
+    .news-card {
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* News Detail */
+    .news-header .news-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .news-content {
+        font-size: var(--font-size-base);
+    }
+
+    .news-meta {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .meta-item {
+        margin-right: 0;
+    }
+
+    /* Comments */
+    .comment-form textarea {
+        min-height: 80px;
+    }
+
+    /* Info Bar */
+    .info-items {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    /* Footer */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    /* Pagination */
+    .pagination {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .page-link {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Container Padding */
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: var(--spacing-lg) 0;
+    }
+}
+
+/* Small mobile devices (max-width: 480px) */
+@media (max-width: 480px) {
+    /* Typography */
+    h1 { font-size: var(--font-size-2xl); }
+    h2 { font-size: var(--font-size-xl); }
+
+    /* Logo */
+    .logo h1 {
+        font-size: var(--font-size-xl);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: var(--spacing-xs) var(--spacing-md);
+        font-size: var(--font-size-sm);
+    }
+
+    /* News Card */
+    .news-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .news-image {
+        height: 150px;
+    }
+
+    /* Hero */
+    .hero-item,
+    .hero-main {
+        height: 200px;
+    }
+
+    .hero-title a {
+        font-size: var(--font-size-lg);
+    }
+
+    /* Share Buttons */
+    .news-share {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Footer */
+    .footer-section h3 {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .hero-item {
+        height: 200px;
+    }
+
+    .hero-main {
+        height: 250px;
+    }
+}
+
+/* High resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimize images and icons for retina displays */
+    .logo img {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
+
+/* Print styles */
+@media print {
+    .site-header,
+    .category-bar,
+    .site-footer,
+    .news-share,
+    .comment-form,
+    .pagination {
+        display: none;
+    }
+
+    .news-detail {
+        padding: 0;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .news-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}

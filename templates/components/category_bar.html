@@ -1,0 +1,19 @@
+{% load static %}
+<nav class="category-bar">
+    <div class="container">
+        <ul class="category-list">
+            <li>
+                <a href="{% url 'core:home' %}" class="category-link {% if request.path == '/' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Início
+                </a>
+            </li>
+            {% for category in categories %}
+                <li>
+                    <a href="{{ category.get_absolute_url }}" class="category-link">
+                        {{ category.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</nav>

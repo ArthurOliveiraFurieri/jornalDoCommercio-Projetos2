@@ -1,0 +1,58 @@
+{% load static %}
+<header class="site-header">
+    <div class="container">
+        <div class="header-content">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="{% url 'core:home' %}">
+                    {% if site_config.logo %}
+                        <img src="{{ site_config.logo.url }}" alt="{{ site_config.site_name }}">
+                    {% else %}
+                        <h1>{{ site_config.site_name }}</h1>
+                    {% endif %}
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <form action="{% url 'news:search' %}" method="get">
+                    <input type="text" name="q" placeholder="Buscar notícias..." required>
+                    <button type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- User Menu -->
+            <div class="user-menu">
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">
+                            <i class="fas fa-user"></i>
+                            {{ user.username }}
+                        </button>
+                        <div class="dropdown-menu">
+                            {% if user.is_staff %}
+                                <a href="/admin/">
+                                    <i class="fas fa-cog"></i> Admin
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>
