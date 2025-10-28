@@ -101,7 +101,7 @@
                 </div>
                 {% empty %}
                 <div class="sem-comentarios" style="text-align: center; padding: 30px; color: #6c757d; font-style: italic;">
-                    <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+                    <p>Seja o primeiro a comentar</p>
                 </div>
                 {% endfor %}
             </div>
@@ -111,4 +111,18 @@
     </div>
 
 </div>
+
+{% if noticias_similares %}
+<hr>
+<h3>Veja também</h3>
+<ul>
+    {% for n in noticias_similares %}
+        <li>
+            <a href="{% url 'jornal_app:artigo' pk=n.pk %}">
+        {{ n.titulo }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
