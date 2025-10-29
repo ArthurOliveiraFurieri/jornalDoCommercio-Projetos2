@@ -20,7 +20,10 @@ SECRET_KEY = '<A SECRET KEY DO SEU PROJETO>'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['oliveira2307.pythonanywhere.com']
+ALLOWED_HOSTS = [
+    'oliveira2307.pythonanywhere.com',  # Para o deploy em produção
+    '127.0.0.1',                       # Para o desenvolvimento local (runserver)
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -109,6 +112,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 
 
