@@ -69,12 +69,8 @@ WSGI_APPLICATION = 'jornalDoCommercio.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oliveira2307$default',
-        'USER': 'oliveira2307',
-        'PASSWORD': 'Arthuzera07@',
-        'HOST' : 'oliveira2307.mysql.pythonanywhere-services.com'
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -112,9 +108,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
-STATIC_ROOT = "/home/oliveira2307/jornalDoCommercio-Projetos2/static"
+
 
 
 # Default primary key field type
