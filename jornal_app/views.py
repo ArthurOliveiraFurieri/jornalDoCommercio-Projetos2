@@ -7,9 +7,13 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from .models import Categoria, Noticia, Comentario
-from .forms import CategoriaForm, ComentarioForm
+
+# --- IMPORTS MODIFICADOS (adicionamos CustomUserCreationForm) ---
+from .forms import CategoriaForm, ComentarioForm, CustomUserCreationForm
 from django.contrib.admin.views.decorators import staff_member_required
 
+# --- IMPORT NOVO (adicionamos 'login') ---
+from django.contrib.auth import login
 
 
 class NoticiaDetailView(DetailView):
@@ -44,7 +48,7 @@ class NoticiaDetailView(DetailView):
         """
         if not request.user.is_authenticated:
             messages.error(request, 'Você precisa estar logado para comentar.')
-            return redirect('login')
+            return redirect('login') # O Django vai saber qual é o 'login' (Passo 3)
             
         noticia = self.get_object()
         comentario_form = ComentarioForm(request.POST)
@@ -210,6 +214,7 @@ def noticia_search(request):
         'query': query
     }
     return render(request, 'jornal_app/noticia_search.html', context)
+    
 @staff_member_required
 def importar_noticias(request):
     if request.method == 'POST':
@@ -226,3 +231,22 @@ def importar_noticias(request):
         return redirect('admin:index')
     
     return render(request, 'admin/importar_noticias.html')
+
+def register_view(request):
+    """
+    View function para a página de cadastro de novos usuários.
+    """
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save() 
+            login(request, user) 
+            messages.success(request, 'Cadastro realizado com sucesso!')
+            return redirect('jornal_app:home') 
+        else:
+            messages.error(request, 'Erro no cadastro. Verifique os dados informados.')
+            pass 
+    else:
+        form = CustomUserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})
