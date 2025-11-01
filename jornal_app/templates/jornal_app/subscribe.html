@@ -1,0 +1,26 @@
+{% extends "jornal_app/base.html" %}
+{% load static %}
+
+{% block main_content %}
+<div style="padding: 2rem; text-align: center;">
+    
+    <h2>Tenha Acesso Ilimitado</h2>
+    
+    <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+        Você está tentando acessar uma notícia exclusiva.
+        <br>
+        Torne-se um assinante e apoie o jornalismo de verdade.
+    </p>
+
+    <form action="{% url 'jornal_app:process_subscription' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="search-button" style="padding: 1rem 2rem; font-size: 1.2rem;">
+            Assinar Agora (Teste Grátis)
+        </button>
+    </form>
+    
+</div>
+{% endblock %}
+
+{% block sidebar %}
+    {% endblock %}

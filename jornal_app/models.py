@@ -1,93 +1,63 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
-from django.core.exceptions import ValidationError
-from django.conf import settings
-from django.utils import timezone
+
+# --- Imports novos para o Profile ---
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 class Categoria(models.Model):
-    nome = models.CharField(
-        max_length=100,
-        unique=True,
-        verbose_name="Nome da Categoria",
-        help_text="O nome deve ser único para cada categoria."
-    ) 
-
-    class Meta:
-        verbose_name = "Categoria"
-        verbose_name_plural = "Categorias"
-        ordering = ['nome']
+    nome = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.nome
 
 class Noticia(models.Model):
-    titulo = models.CharField(max_length=200, verbose_name="Título")
-    conteudo = models.TextField(verbose_name="Conteúdo")
-    data_publicacao = models.DateTimeField(auto_now_add=True, verbose_name="Data de Publicação")
-    categoria = models.ForeignKey(
-        Categoria,
-        on_delete=models.PROTECT,
-        related_name='noticias',
-        verbose_name="Categoria"
-    )
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name='noticias')
+    titulo = models.CharField(max_length=200)
+    conteudo = models.TextField()
+    data_publicacao = models.DateTimeField(auto_now_add=True)
+    destaque = models.BooleanField(default=False)
     
-    destaque = models.BooleanField(
-        default=False,
-        verbose_name="Notícia em Destaque",
-        help_text="Marque para que esta notícia apareça na seção de destaques da homepage."
-    )
+    # --- CAMPO NOVO ADICIONADO ---
+    exclusivo = models.BooleanField(default=False, help_text="Marque se esta notícia é apenas para assinantes")
+    # --- FIM DA MODIFICAÇÃO ---
 
     class Meta:
-        verbose_name = "Notícia"
-        verbose_name_plural = "Notícias"
         ordering = ['-data_publicacao']
 
     def __str__(self):
         return self.titulo
 
-    def noticias_similares(self):
-        return (
-            Noticia.objects.filter(categoria=self.categoria)
-            .exclude(id=self.id)
-            .order_by('-data_publicacao') [:3]
-        )
-
-# ⭐⭐ VERIFIQUE SE ESTE MODELO ESTÁ NO SEU ARCHIVO ⭐⭐
 class Comentario(models.Model):
-    """
-    Representa um comentário em uma notícia.
-    """
-    noticia = models.ForeignKey(
-        Noticia, 
-        on_delete=models.CASCADE, 
-        related_name='comentarios',
-        verbose_name="Notícia"
-    )
-    autor = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        verbose_name="Autor"
-    )
-    texto = models.TextField(verbose_name="Comentário")
-    data_criacao = models.DateTimeField(default=timezone.now, verbose_name="Data de Criação")
-    ativo = models.BooleanField(
-        default=True, 
-        verbose_name="Ativo",
-        help_text="Desmarque para ocultar este comentário."
-    )
-    
+    noticia = models.ForeignKey(Noticia, on_delete=models.CASCADE, related_name='comentarios')
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    texto = models.TextField()
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    ativo = models.BooleanField(default=False)
+
     class Meta:
-        verbose_name = "Comentário"
-        verbose_name_plural = "Comentários"
         ordering = ['data_criacao']
+
+    def __str__(self):
+        return f'Comentário de {self.autor} em {self.noticia.titulo}'
+
+
+# --- NOVO MODELO DE PROFILE ---
+class Profile(models.Model):
+    """
+    Modelo que extende o User, guardando se ele é assinante ou não.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_assinante = models.BooleanField(default=False)
     
     def __str__(self):
-        return f'Comentário de {self.autor} em {self.noticia}'
+        return f"Perfil de {self.user.username}"
 
-class Perfil(models.Model):
-    usuario = models.OneToOneField(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE,
-        related_name='perfil'
-    )
+# --- "SINAIS" PARA CRIAR O PROFILE AUTOMATICAMENTE ---
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """ Cria um Profile automaticamente quando um User é criado """
+    if created:
+        Profile.objects.create(user=instance)
+

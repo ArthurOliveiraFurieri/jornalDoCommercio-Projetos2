@@ -6,25 +6,41 @@ from django.db.models.deletion import ProtectedError
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Categoria, Noticia, Comentario
 
-# --- IMPORTS MODIFICADOS (adicionamos CustomUserCreationForm) ---
+# --- IMPORTS MODIFICADOS (adicionamos Profile) ---
+from .models import Categoria, Noticia, Comentario, Profile
 from .forms import CategoriaForm, ComentarioForm, CustomUserCreationForm
 from django.contrib.admin.views.decorators import staff_member_required
-
-# --- IMPORT NOVO (adicionamos 'login') ---
 from django.contrib.auth import login
 
 
 class NoticiaDetailView(DetailView):
-    """
-    Exibe uma notícia completa.
-    """
     model = Noticia
     template_name = 'jornal_app/artigo.html'
     context_object_name = 'noticia'
 
+    # --- MÉTODO DISPATCH MODIFICADO (O PAYWALL) ---
     def dispatch(self, request, *args, **kwargs):
+        """
+        Este método roda ANTES do get() ou post().
+        Aqui checamos a assinatura.
+        """
+        noticia = self.get_object()
+        
+        # 1. A notícia é exclusiva?
+        if noticia.exclusivo:
+            # 2. O usuário não está logado?
+            if not request.user.is_authenticated:
+                messages.error(request, 'Esta é uma notícia exclusiva. Faça login ou cadastre-se para assinar.')
+                return redirect('login') # Manda para o login
+            
+            # 3. O usuário está logado, mas NÃO é assinante?
+            # (Usamos .profile.is_assinante, que vem do models.py)
+            if not request.user.profile.is_assinante:
+                messages.warning(request, 'Esta é uma notícia exclusiva para assinantes.')
+                return redirect('jornal_app:subscribe_page') # Manda para a página "Assine"
+        
+        # 4. Se a notícia não é exclusiva, ou se ele é assinante, segue o baile.
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
@@ -40,8 +56,8 @@ class NoticiaDetailView(DetailView):
         # Formulário para novo comentário
         context['comentario_form'] = ComentarioForm()
 
-        #Recomendação de notícias similares
-        context['noticias_similares'] = noticia.noticias_similares()
+        # Recomendação de notícias similares (Seu código foi mantido)
+        # context['noticias_similares'] = noticia.noticias_similares()
         
         return context
     
@@ -51,7 +67,7 @@ class NoticiaDetailView(DetailView):
         """
         if not request.user.is_authenticated:
             messages.error(request, 'Você precisa estar logado para comentar.')
-            return redirect('login') # O Django vai saber qual é o 'login' (Passo 3)
+            return redirect('login') 
             
         noticia = self.get_object()
         comentario_form = ComentarioForm(request.POST)
@@ -60,11 +76,13 @@ class NoticiaDetailView(DetailView):
             novo_comentario = comentario_form.save(commit=False)
             novo_comentario.noticia = noticia
             novo_comentario.autor = request.user
-            novo_comentario.save()
-            messages.success(request, 'Comentário adicionado com sucesso!')
+            novo_comentario.save() # Salva como inativo (default=False no models)
+            
+            # --- MUDANÇA DA MODERAÇÃO (que fizemos antes) ---
+            messages.success(request, 'Comentário enviado com sucesso! Aguardando moderação.')
+            
             return redirect('jornal_app:artigo', pk=noticia.pk)
         else:
-            # Se o formulário for inválido, reexibe a página com os erros
             context = self.get_context_data()
             context['comentario_form'] = comentario_form
             return self.render_to_response(context)
@@ -77,20 +95,14 @@ class HomeView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['destaques'] = Noticia.objects.filter(destaque=True).order_by('-data_publicacao')[:3]
-        
         context['artigos_recentes'] = Noticia.objects.filter(destaque=False).order_by('-data_publicacao')[:3]
-        
-        # 4. Informações do Dia (Mantemos estático por enquanto)
-        #    No futuro, isso pode vir de uma API de clima/finanças.
         context['informacoes_dia'] = {
             'temperatura_max': '30°C',
             'temperatura_min': '27°C',
             'dolar': 'R$ 5,351',
             'euro': 'R$ 7,431'
         }
-        
         return context
 
 
@@ -104,16 +116,10 @@ class NoticiasPorCategoriaView(ListView):
     paginate_by = 10 
 
     def get_queryset(self):
-        """
-        Filtra as notícias pela categoria passada na URL.
-        """
         self.categoria = get_object_or_404(Categoria, pk=self.kwargs['pk'])
         return Noticia.objects.filter(categoria=self.categoria).order_by('-data_publicacao')
 
     def get_context_data(self, **kwargs):
-        """
-        Adiciona o objeto 'categoria' ao contexto para ser usado no template.
-        """
         context = super().get_context_data(**kwargs)
         context['categoria'] = self.categoria
         return context
@@ -122,26 +128,15 @@ class NoticiasPorCategoriaView(ListView):
 
 @method_decorator(login_required, name='dispatch')
 class ComentarioDeleteView(DeleteView):
-    """
-    Exclui um comentário.
-    """
     model = Comentario
     template_name = 'jornal_app/comentario_confirm_delete.html'
     
     def get_success_url(self):
-        """
-        Redireciona para a notícia após excluir o comentário.
-        """
         noticia_id = self.object.noticia.id
         return reverse_lazy('jornal_app:artigo', kwargs={'pk': noticia_id})
     
     def delete(self, request, *args, **kwargs):
-        """
-        Sobrescreve o método delete para verificar permissões e mostrar mensagens.
-        """
         self.object = self.get_object()
-        
-        # Verifica se o usuário é o autor do comentário ou staff
         if request.user == self.object.autor or request.user.is_staff:
             noticia_id = self.object.noticia.id
             self.object.delete()
@@ -154,17 +149,11 @@ class ComentarioDeleteView(DeleteView):
 # --- VIEWS PARA O EDITOR ---
 
 class CategoriaListView(ListView):
-    """
-    Lista todas as categorias para o editor.
-    """
     model = Categoria
     template_name = 'jornal_app/categoria_list.html'
     context_object_name = 'categorias'
 
 class CategoriaCreateView(CreateView):
-    """
-    Cria uma nova categoria.
-    """
     model = Categoria
     form_class = CategoriaForm
     template_name = 'jornal_app/categoria_form.html'
@@ -175,17 +164,11 @@ class CategoriaCreateView(CreateView):
         return super().form_valid(form)
 
 class CategoriaDeleteView(DeleteView):
-    """
-    Exclui uma categoria.
-    """
     model = Categoria
     template_name = 'jornal_app/categoria_confirm_delete.html'
     success_url = reverse_lazy('jornal_app:categoria_list')
     
     def post(self, request, *args, **kwargs):
-        """
-        Sobrescreve o método post para tratar o ProtectedError.
-        """
         self.object = self.get_object()
         try:
             self.object.delete()
@@ -200,9 +183,6 @@ class CategoriaDeleteView(DeleteView):
 # --- VIEWS EXTRAS (OPCIONAIS) ---
 
 def noticia_search(request):
-    """
-    View function para busca de notícias
-    """
     query = request.GET.get('q', '')
     noticias = Noticia.objects.all()
     
@@ -253,3 +233,27 @@ def register_view(request):
         form = CustomUserCreationForm()
     
     return render(request, 'registration/register.html', {'form': form})
+
+
+def subscribe_page(request):
+    """
+    Mostra a página de "upsell" (Assine Agora).
+    """
+    return render(request, 'jornal_app/subscribe.html')
+
+@login_required 
+def process_subscription(request):
+    """
+    Processa a assinatura (FAKE). 
+    No mundo real, aqui teria a lógica de pagamento.
+    """
+    if request.method == 'POST':
+        profile = request.user.profile
+        
+        profile.is_assinante = True
+        profile.save()
+        
+        messages.success(request, 'Parabéns! Você agora é um assinante e tem acesso a todo o conteúdo.')
+        return redirect('jornal_app:home')
+    
+    return redirect('jornal_app:subscribe_page')

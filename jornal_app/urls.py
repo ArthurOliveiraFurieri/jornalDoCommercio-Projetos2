@@ -16,4 +16,7 @@ urlpatterns = [
     path('importar/', views.importar_noticias, name='importar_noticias'),
     
     path('register/', views.register_view, name='register'),
+
+    path('assine/', views.subscribe_page, name='subscribe_page'),
+    path('processar-assinatura/', views.process_subscription, name='process_subscription'),
 ]

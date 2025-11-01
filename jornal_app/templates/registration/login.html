@@ -33,6 +33,27 @@
             color: #333;
             text-align: center;
         }
+
+        /* --- CSS NOVO PARA OS AVISOS --- */
+        .messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+        }
+        .message {
+            padding: 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .message.error {
+            background-color: #f8d7da; /* Vermelho claro */
+            color: #721c24; /* Vermelho escuro */
+            border: 1px solid #f5c6cb;
+        }
+        /* --- FIM DO CSS NOVO --- */
+
         .auth-container form p {
             margin-bottom: 1.2rem;
             text-align: left;
@@ -43,7 +64,7 @@
         .auth-container input[type="text"],
         .auth-container input[type="email"],
         .auth-container input[type="password"] {
-            width: calc(100% - 24px); /* 100% menos o padding */
+            width: calc(100% - 24px); 
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -92,6 +113,14 @@
 </head>
 <body>
     <div class="auth-container">
+        
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
         <h2>Fazer Login</h2>
         
         <form method="post">
