@@ -39,6 +39,9 @@ class NoticiaDetailView(DetailView):
         
         # Formulário para novo comentário
         context['comentario_form'] = ComentarioForm()
+
+        #Recomendação de notícias similares
+        context['noticias_similares'] = noticia.noticias_similares()
         
         return context
     

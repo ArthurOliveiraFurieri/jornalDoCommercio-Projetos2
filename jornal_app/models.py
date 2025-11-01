@@ -46,6 +46,13 @@ class Noticia(models.Model):
     def __str__(self):
         return self.titulo
 
+    def noticias_similares(self):
+        return (
+            Noticia.objects.filter(categoria=self.categoria)
+            .exclude(id=self.id)
+            .order_by('-data_publicacao') [:3]
+        )
+
 # ⭐⭐ VERIFIQUE SE ESTE MODELO ESTÁ NO SEU ARCHIVO ⭐⭐
 class Comentario(models.Model):
     """
