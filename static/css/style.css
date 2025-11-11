@@ -19,6 +19,7 @@ body {
 }
 
 /* ===== HEADER ===== */
+/* (Estilos do seu primeiro CSS) */
 .header {
     background: #ffffff;
     border-bottom: 2px solid #1a1a1a;
@@ -29,7 +30,6 @@ body {
     text-align: center;
 }
 
-/* LOGO CONTAINER - ADICIONADO */
 .logo-container {
     display: flex;
     align-items: center;
@@ -123,6 +123,7 @@ body {
 }
 
 /* ===== MAIN CONTENT ===== */
+/* (Estilos do seu primeiro CSS + adições de imagem) */
 .main-content {
     padding: 40px 0;
     background: #f8f9fa;
@@ -140,6 +141,18 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 30px;
     text-align: center;
+}
+
+/* CONTROLE DA IMAGEM DE DESTAQUE */
+.feature-image-container {
+    margin-bottom: 25px;
+}
+
+.feature-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 .feature-title {
@@ -172,11 +185,30 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border-left: 4px solid #2c5aa0;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .news-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+/* CONTROLE DAS IMAGENS DOS CARDS */
+.news-image-container {
+    margin-bottom: 20px;
+    margin-left: -30px;
+    margin-right: -30px;
+    margin-top: -30px;
+}
+
+.news-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .news-title {
@@ -193,6 +225,7 @@ body {
     line-height: 1.6;
     color: #666;
     margin-bottom: 20px;
+    flex-grow: 1;
 }
 
 .read-more-link {
@@ -203,6 +236,7 @@ body {
     font-weight: 600;
     font-size: 0.95rem;
     transition: color 0.3s ease;
+    margin-top: auto;
 }
 
 .read-more-link:hover {
@@ -257,7 +291,7 @@ body {
     background: #1a1a1a;
     color: white;
     padding: 40px 0;
-    margin-top: 60px;
+    margin-top: 60px; /* Adicionado para dar espaço */
 }
 
 .footer-content {
@@ -275,7 +309,10 @@ body {
 }
 
 /* ===== RESPONSIVIDADE ===== */
+/* (Mesclando os dois arquivos) */
+
 @media (max-width: 1024px) {
+    /* Regras do primeiro CSS */
     .news-row {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -287,7 +324,19 @@ body {
     }
 }
 
+@media (max-width: 968px) {
+    /* Regras do seu segundo CSS */
+    .header-main {
+        padding: 25px 0 15px 0;
+    }
+    
+    .logo {
+        font-size: 3rem;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Regras do primeiro CSS */
     .news-row {
         grid-template-columns: 1fr;
     }
@@ -300,54 +349,41 @@ body {
     .main-feature {
         padding: 25px;
     }
-    
+
+    .feature-image {
+        height: 250px;
+    }
+
     .feature-title {
         font-size: 1.8rem;
-    }
-    
-    .logo {
-        font-size: 2.5rem;
-    }
-    
-    .main-nav {
-        gap: 15px;
-    }
-    
-    .nav-item {
-        font-size: 0.75rem;
-    }
-    
-    /* RESPONSIVIDADE DO LOGO - ADICIONADO */
-    .logo-container {
-        gap: 10px;
     }
     
     .site-logo {
         width: 40px;
         height: 40px;
     }
-}
 
-@media (max-width: 480px) {
-    .logo {
-        font-size: 2rem;
+    /* Regras do seu segundo CSS (priorizadas) */
+    .header-main {
+        padding: 20px 0 15px 0;
     }
     
-    .top-links {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
+    .logo {
+        font-size: 2.2rem;
     }
     
     .main-nav {
-        gap: 10px;
+        gap: 12px;
     }
     
     .nav-item {
         font-size: 0.7rem;
+        letter-spacing: 0.5px;
     }
-    
-    /* RESPONSIVIDADE DO LOGO - ADICIONADO */
+}
+
+@media (max-width: 480px) {
+    /* Regras do primeiro CSS */
     .site-logo {
         width: 35px;
         height: 35px;
@@ -355,5 +391,31 @@ body {
     
     .logo-container {
         gap: 8px;
+    }
+
+    /* Regras do seu segundo CSS (priorizadas) */
+    .header-main {
+        padding: 15px 0 10px 0;
+    }
+    
+    .logo {
+        font-size: 1.8rem;
+    }
+    
+    .top-links {
+        flex-wrap: wrap; /* Usa a sua regra */
+        gap: 15px; /* Usa a sua regra */
+    }
+    
+    .main-nav {
+        gap: 8px;
+    }
+    
+    .nav-item {
+        font-size: 0.65rem;
+    }
+    
+    .nav-item::after {
+        margin-left: 8px;
     }
 }
