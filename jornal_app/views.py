@@ -14,6 +14,18 @@ from django.conf import settings
 import json
 from datetime import datetime
 
+class MaisNoticiasView(ListView):
+    """
+    Serve os artigos para o scroll infinito, de forma paginada.
+    """
+    model = Noticia
+    template_name = 'jornal_app/partials/noticia_feed.html'
+    context_object_name = 'noticias'
+    paginate_by = 6 
+
+    def get_queryset(self):
+        return Noticia.objects.all().order_by('-data_publicacao')[4:]
+
 
 class NoticiaDetailView(DetailView):
     """
@@ -345,15 +357,23 @@ def processar_artigos_para_categoria(articles, categoria):
         
         # Preparar conteúdo
         descricao = article.get('description', '') or ''
-        conteudo = article.get('content', '') or descricao
+        conteudo_final = article.get('description', '')
+
+        # 2. Se a 'description' estiver vazIA, tente pegar o 'content'
+        if not conteudo_final:
+            conteudo_final = article.get('content', '')
+
+        # 3. Se ambos falharem, use o título como último recurso
+        if not conteudo_final:
+            conteudo_final = article.get('title', 'Artigo sem conteúdo')
         
-        if not conteudo.strip():
+        if not conteudo_final.strip():
             continue
             
         # Criar a notícia
         noticia = Noticia(
             titulo=article.get('title', '')[:200],
-            conteudo=conteudo[:2000],
+            conteudo=conteudo_final[:2000],
             categoria=categoria,  # Usa a categoria específica
             url_fonte=url_fonte[:500],
             imagem_url=article.get('image_url', '')[:500],
