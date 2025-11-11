@@ -8,9 +8,38 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Noticia)
 class NoticiaAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'categoria', 'data_publicacao', 'destaque')
+    list_display = ('titulo', 'categoria', 'data_publicacao', 'destaque', 'autor_fonte')
     list_filter = ('categoria', 'data_publicacao', 'destaque')
-    search_fields = ('titulo', 'conteudo')
+    search_fields = ('titulo', 'conteudo', 'autor_fonte')
+    list_editable = ('destaque',)
+    readonly_fields = ('data_publicacao',)
+    
+    # Campos para exibir no formulário de edição
+    fieldsets = (
+        ('Informações Básicas', {
+            'fields': ('titulo', 'conteudo', 'categoria')
+        }),
+        ('Configurações de Exibição', {
+            'fields': ('destaque', 'data_publicacao')
+        }),
+        ('Informações da Fonte Externa', {
+            'fields': ('url_fonte', 'imagem_url', 'autor_fonte'),
+            'classes': ('collapse',)  # Faz esta seção ser recolhível
+        }),
+    )
+    
+    # Ações personalizadas
+    actions = ['marcar_como_destaque', 'remover_destaque']
+    
+    def marcar_como_destaque(self, request, queryset):
+        queryset.update(destaque=True)
+        self.message_user(request, f"{queryset.count()} notícia(s) marcada(s) como destaque!")
+    marcar_como_destaque.short_description = "Marcar como destaque"
+    
+    def remover_destaque(self, request, queryset):
+        queryset.update(destaque=False)
+        self.message_user(request, f"{queryset.count()} notícia(s) removida(s) dos destaques!")
+    remover_destaque.short_description = "Remover dos destaques"
 
 # ADICIONE ESTE NOVO REGISTRO PARA COMENTÁRIOS
 @admin.register(Comentario)

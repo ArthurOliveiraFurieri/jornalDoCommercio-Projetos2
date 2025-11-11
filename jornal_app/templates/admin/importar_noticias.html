@@ -51,6 +51,10 @@
         .btn-primary:hover {
             background: #218838;
         }
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
         .alert {
             padding: 15px;
             margin: 15px 0;
@@ -71,23 +75,43 @@
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
+        .api-status {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📰 Importar Notícias da NewsAPI</h1>
+            <h1>📰 Importar Notícias da NewsDataAPI</h1>
         </div>
         
         <div class="content">
+            {% if not NEWSDATA_API_KEY or NEWSDATA_API_KEY == 'sua_chave_aqui' %}
+            <div class="api-status">
+                <strong>⚠️ Configuração Necessária:</strong>
+                <p>Para usar esta funcionalidade, adicione no settings.py:</p>
+                <code>NEWSDATA_API_KEY = 'sua_chave_da_newsdata_api'</code>
+                <p style="margin-top: 10px; font-size: 14px;">
+                    Obtenha uma chave gratuita em: <a href="https://newsdata.io/" target="_blank">https://newsdata.io/</a>
+                </p>
+            </div>
+            {% endif %}
+
             <div class="info-box">
-                <p style="margin: 0 0 15px 0;"><strong>📡 Fonte:</strong> NewsAPI - Notícias em português do Brasil</p>
+                <p style="margin: 0 0 15px 0;"><strong>📡 Fonte:</strong> NewsDataAPI - Notícias em português do Brasil</p>
+                <p style="margin: 0 0 10px 0;"><strong>📍 Categorias:</strong> Tecnologia, Política, Esportes, Saúde, Entretenimento, Negócios</p>
                 <p style="margin: 0;">Esta função irá buscar as principais notícias do momento e salvar automaticamente no banco de dados.</p>
             </div>
             
-            <form method="post" style="text-align: center;">
+            <form method="post" style="text-align: center;" id="import-form">
                 {% csrf_token %}
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary" id="import-button" 
+                    {% if not NEWSDATA_API_KEY or NEWSDATA_API_KEY == 'sua_chave_aqui' %}disabled{% endif %}>
                     🚀 Importar Notícias Agora
                 </button>
                 
@@ -102,15 +126,18 @@
     <div class="container" style="margin-top: 20px;">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
-            <strong>
-                {% if message.tags == 'success' %}✅ {% endif %}
-                {% if message.tags == 'error' %}❌ {% endif %}
-                {% if message.tags == 'info' %}ℹ️ {% endif %}
-            </strong>
-            {{ message }}
+            {{ message|safe }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
+
+    <script>
+        document.getElementById('import-form').addEventListener('submit', function(e) {
+            const button = document.getElementById('import-button');
+            button.disabled = true;
+            button.innerHTML = '⏳ Importando...';
+        });
+    </script>
 </body>
 </html>

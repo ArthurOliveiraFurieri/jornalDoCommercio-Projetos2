@@ -9,7 +9,10 @@ from django.utils.decorators import method_decorator
 from .models import Categoria, Noticia, Comentario
 from .forms import CategoriaForm, ComentarioForm
 from django.contrib.admin.views.decorators import staff_member_required
-
+import requests
+from django.conf import settings
+import json
+from datetime import datetime
 
 
 class NoticiaDetailView(DetailView):
@@ -190,7 +193,6 @@ class CategoriaDeleteView(DeleteView):
                 f"Não é possível excluir a categoria '{self.object.nome}' pois ela está vinculada a uma ou mais notícias."
             )
             return redirect(self.success_url)
-# --- VIEWS EXTRAS (OPCIONAIS) ---
 
 def noticia_search(request):
     """
@@ -210,19 +212,223 @@ def noticia_search(request):
         'query': query
     }
     return render(request, 'jornal_app/noticia_search.html', context)
+
+# === FUNÇÕES PARA IMPORTAR NOTÍCIAS DA NEWS DATA API ===
+
 @staff_member_required
 def importar_noticias(request):
-    if request.method == 'POST':
-        try:
-            from .news_simple import importar_noticias_simples
-            quantidade = importar_noticias_simples()
-            if quantidade > 0:
-                messages.success(request, f'{quantidade} notícias importadas com sucesso!')
-            else:
-                messages.info(request, 'Nenhuma nova notícia foi importada.')
-        except Exception as e:
-            messages.error(request, f'Erro ao importar notícias: {str(e)}')
-        
-        return redirect('admin:index')
+    """
+    View para importar notícias da NewsDataAPI - CORRIGIDA
+    """
+    # Verificar se a chave API está configurada
+    api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
+    api_configurada = bool(api_key and api_key.strip() and api_key != 'sua_chave_api_aqui')
     
-    return render(request, 'admin/importar_noticias.html')
+    if request.method == 'POST':
+        if not api_configurada:
+            messages.error(request, '❌ Chave API não configurada. Adicione NEWSDATA_API_KEY no settings.py')
+            return redirect('jornal_app:importar_noticias')
+            
+        try:
+            # Tenta usar requests primeiro, depois fallback para urllib
+            try:
+                quantidade_importada = importar_noticias_newsdata_requests()
+            except ImportError:
+                quantidade_importada = importar_noticias_newsdata_urllib()
+                
+            if quantidade_importada > 0:
+                messages.success(request, f'✅ {quantidade_importada} notícias importadas com sucesso da NewsDataAPI!')
+            else:
+                messages.info(request, 'ℹ️ Nenhuma nova notícia foi importada. Todas as notícias já existem no banco de dados.')
+                
+        except Exception as e:
+            messages.error(request, f'❌ Erro ao importar notícias: {str(e)}')
+        
+        return redirect('jornal_app:importar_noticias')
+    
+    context = {
+        'api_configurada': api_configurada,
+        'NEWSDATA_API_KEY': api_key
+    }
+    return render(request, 'admin/importar_noticias.html', context)
+
+def importar_noticias_newsdata_requests():
+    """
+    Função para importar notícias usando requests - CORRIGIDA
+    """
+    # Configurações da API
+    api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
+    
+    if not api_key:
+        raise Exception('Chave API não configurada. Adicione NEWSDATA_API_KEY no settings.py')
+    
+    base_url = "https://newsdata.io/api/1/news"
+    
+    # Parâmetros SIMPLIFICADOS - sem categoria múltipla
+    params = {
+        'apikey': api_key,
+        'country': 'br',
+        'language': 'pt',
+        'size': 10  # Reduzindo para 10 para testar
+    }
+    
+    print(f"🔍 Fazendo requisição para: {base_url}")
+    print(f"🔍 Parâmetros: {params}")
+    
+    response = requests.get(base_url, params=params, timeout=30)
+    
+    print(f"🔍 Status Code: {response.status_code}")
+    
+    if response.status_code != 200:
+        print(f"🔍 Erro detalhado: {response.text}")
+        response.raise_for_status()
+    
+    data = response.json()
+    print(f"🔍 Total de artigos recebidos: {len(data.get('results', []))}")
+    
+    articles = data.get('results', [])
+    return processar_artigos(articles)
+
+def importar_noticias_newsdata_urllib():
+    """
+    Função para importar notícias usando urllib (fallback) - CORRIGIDA
+    """
+    # Configurações da API
+    api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
+    
+    if not api_key:
+        raise Exception('Chave API não configurada. Adicione NEWSDATA_API_KEY no settings.py')
+    
+    base_url = "https://newsdata.io/api/1/news"
+    
+    # Parâmetros SIMPLIFICADOS
+    params = {
+        'apikey': api_key,
+        'country': 'br',
+        'language': 'pt',
+        'size': 10
+    }
+    
+    # Construir URL com parâmetros
+    from urllib.parse import urlencode
+    query_string = urlencode(params)
+    url = f"{base_url}?{query_string}"
+    
+    print(f"🔍 URL da requisição: {url}")
+    
+    # Criar request
+    from urllib.request import Request, urlopen
+    from urllib.error import URLError, HTTPError
+    import ssl
+    import json
+    
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    
+    # Fazer a requisição
+    context = ssl._create_unverified_context()
+    
+    try:
+        with urlopen(req, timeout=30, context=context) as response:
+            data = json.loads(response.read().decode())
+            print(f"🔍 Status Code: {response.status}")
+            articles = data.get('results', [])
+            return processar_artigos(articles)
+    except (URLError, HTTPError) as e:
+        print(f"🔍 Erro detalhado: {e}")
+        raise Exception(f"Erro na requisição para NewsDataAPI: {str(e)}")
+def processar_artigos(articles):
+    """
+    Processa os artigos e salva no banco de dados
+    """
+    quantidade_importada = 0
+    
+    for article in articles:
+        # Verificar se a notícia já existe pela URL
+        url_fonte = article.get('link', '')
+        if Noticia.objects.filter(url_fonte=url_fonte).exists():
+            continue
+        
+        # Mapear categoria
+        categoria_api = article.get('category', ['general'])[0] if isinstance(article.get('category'), list) else article.get('category', 'general')
+        categoria_obj = mapear_categoria(categoria_api)
+        
+        # Converter data de publicação
+        data_publicacao = parse_date(article.get('pubDate', ''))
+        
+        # Preparar conteúdo
+        descricao = article.get('description', '') or ''
+        conteudo = article.get('content', '') or descricao
+        
+        if not conteudo.strip():
+            continue
+            
+        # Criar a notícia
+        noticia = Noticia(
+            titulo=article.get('title', '')[:200],
+            conteudo=conteudo[:2000],
+            categoria=categoria_obj,
+            url_fonte=url_fonte[:500],
+            imagem_url=article.get('image_url', '')[:500],
+            autor_fonte=article.get('source_id', 'Fonte Externa')[:100],
+            data_publicacao=data_publicacao,
+            destaque=False
+        )
+        
+        noticia.save()
+        quantidade_importada += 1
+    
+    return quantidade_importada
+
+def mapear_categoria(categoria_api):
+    """
+    Mapeia a categoria da API para uma categoria do sistema - CORRIGIDA
+    """
+    mapeamento = {
+        'technology': 'Tecnologia',
+        'politics': 'Política',
+        'sports': 'Esportes',
+        'health': 'Saúde',
+        'entertainment': 'Entretenimento',
+        'business': 'Negócios',
+        'science': 'Ciência',
+        'general': 'Geral'
+    }
+    
+    nome_categoria = mapeamento.get(categoria_api, 'Geral')
+    
+    # Buscar ou criar a categoria SEM o campo descricao
+    categoria, created = Categoria.objects.get_or_create(
+        nome=nome_categoria
+        # Remova a parte do 'defaults' se seu modelo não tem descricao
+    )
+    
+    return categoria
+
+def parse_date(date_string):
+    """
+    Converte a string de data da API para um objeto datetime
+    """
+    if not date_string:
+        return datetime.now()
+    
+    try:
+        return datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+    except (ValueError, AttributeError):
+        try:
+            formats = [
+                '%a, %d %b %Y %H:%M:%S %Z',
+                '%a, %d %b %Y %H:%M:%S %z',
+                '%Y-%m-%d %H:%M:%S',
+                '%Y-%m-%dT%H:%M:%S.%fZ',
+                '%Y-%m-%d'
+            ]
+            
+            for fmt in formats:
+                try:
+                    return datetime.strptime(date_string, fmt)
+                except ValueError:
+                    continue
+        except:
+            pass
+        
+        return datetime.now()

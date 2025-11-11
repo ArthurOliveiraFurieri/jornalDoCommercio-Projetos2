@@ -37,6 +37,28 @@ class Noticia(models.Model):
         verbose_name="Notícia em Destaque",
         help_text="Marque para que esta notícia apareça na seção de destaques da homepage."
     )
+    
+    # ⭐⭐ CAMPOS OBRIGATÓRIOS PARA A API ⭐⭐
+    url_fonte = models.URLField(
+        max_length=500, 
+        blank=True, 
+        null=True,
+        verbose_name="URL da Fonte Original"
+    )
+    
+    imagem_url = models.URLField(
+        max_length=500, 
+        blank=True, 
+        null=True,
+        verbose_name="URL da Imagem"
+    )
+    
+    autor_fonte = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        verbose_name="Autor/Fonte Externa"
+    )
 
     class Meta:
         verbose_name = "Notícia"
@@ -46,7 +68,6 @@ class Noticia(models.Model):
     def __str__(self):
         return self.titulo
 
-# ⭐⭐ VERIFIQUE SE ESTE MODELO ESTÁ NO SEU ARCHIVO ⭐⭐
 class Comentario(models.Model):
     """
     Representa um comentário em uma notícia.
