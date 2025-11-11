@@ -4,51 +4,74 @@
 {% block main_content %}
 <div class="home-content">
     <div class="container">
-        <!-- Notícia Principal Grande -->
-        <article class="main-feature">
-            <h1 class="feature-title">A really compelling headline</h1>
-            <p class="feature-description">
-                Call out a feature, benefit, or value of your site, then link to a page where people can learn more about it.
-            </p>
-        </article>
 
-        <!-- 3 NOTÍCIAS LADO A LADO -->
+        {% with destaque_principal=destaques.0 %}
+            {% if destaque_principal %}
+            <article class="main-feature">
+                
+                {% if destaque_principal.imagem_url %}
+                <div class="feature-image-container">
+                    <img src="{{ destaque_principal.imagem_url }}" alt="{{ destaque_principal.titulo }}" class="feature-image">
+                </div>
+                {% endif %}
+                
+                <h1 class="feature-title">
+                    <a href="{% url 'jornal_app:artigo' pk=destaque_principal.pk %}">
+                        {{ destaque_principal.titulo }}
+                    </a>
+                </h1>
+                <p class="feature-description">
+                    {{ destaque_principal.conteudo|truncatewords:30|linebreaksbr }}
+                </p>
+            </article>
+            {% else %}
+            <article class="main-feature">
+                <h1 class="feature-title">Bem-vindo ao Jornal do Commercio</h1>
+                <p class="feature-description">
+                    Nossos editores estão preparando as notícias. Volte em breve!
+                </p>
+            </article>
+            {% endif %}
+        {% endwith %}
+
+
         <div class="news-row">
+            
+            {% for noticia in artigos_recentes %}
             <article class="news-card">
-                <h2 class="news-title">Brasileiros que ficaram presos em Israel são recebidos por apoiadores em SP</h2>
-                <p class="news-excerpt">
-                    Treze brasileiros, entre eles a deputada federal Lindgren Line (PT-CC), chegaram ao Brasil, após serem presos por estarem a bordo da família que tentava chegar a Gaza...
-                </p>
-                <a href="#" class="read-more-link">Veja mais →</a>
-            </article>
+                
+                {% if noticia.imagem_url %}
+                <div class="news-image-container">
+                    <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+                </div>
+                {% endif %}
 
-            <article class="news-card">
-                <h2 class="news-title">Governo sofre derrota e vê caducar MP que traria R$ 17 bilhões aos cofres</h2>
+                <h2 class="news-title">
+                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}">
+                        {{ noticia.titulo }}
+                    </a>
+                </h2>
                 <p class="news-excerpt">
-                    Foram 251 a 19 votos pela rejeição. O governo não teve votos suficientes para manter a análise do texto. O deputado Kim Kataguiri (União Brasil-SP) apresentou um pedido para a medida provisória ser retirada da pauta de votações e foi aprovado...
+                    {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
                 </p>
-                <a href="#" class="read-more-link">Veja mais →</a>
+                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more-link">Veja mais →</a>
             </article>
+            {% empty %}
+            <p>Nenhum artigo recente para mostrar.</p>
+            {% endfor %}
 
-            <article class="news-card">
-                <h2 class="news-title">Maior desafio na transição energética no Brasil é substituir diesel, diz diretor da ANP</h2>
-                <p class="news-excerpt">
-                    O diretor da Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP) Pietro Mendes comentou nesta quinta-feira, 9 que a substituição do diesel no setor de transporte pode ser considerada como o "maior desafio" na transição energética no Brasil...
-                </p>
-                <a href="#" class="read-more-link">Veja mais →</a>
-            </article>
         </div>
 
-        <!-- Sidebar Horizontal -->
+
         <div class="horizontal-sidebar">
             <div class="sidebar-inline">
                 <div class="inline-item">
                     <span class="inline-label">Previsão diária</span>
-                    <span class="inline-temp">30°C 27°C</span>
+                    <span class="inline-temp">{{ informacoes_dia.temperatura_max }} {{ informacoes_dia.temperatura_min }}</span>
                 </div>
                 <div class="inline-item">
                     <span class="inline-label">Cotação do dia</span>
-                    <span class="inline-currency">Dólar R$ 5,35 Euro R$ 7,43</span>
+                    <span class="inline-currency">Dólar {{ informacoes_dia.dolar }} Euro {{ informacoes_dia.euro }}</span>
                 </div>
                 <div class="inline-item">
                     <span class="inline-label">Previsão Marés Recife</span>
@@ -62,4 +85,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock main_content %}
