@@ -1,114 +1,43 @@
 {% extends "jornal_app/base.html" %}
 {% load static %}
 
-{% block title %}{{ noticia.titulo }} - Jornal do Commercio{% endblock %}
+{% block title %}{{ artigo.titulo }} - Jornal do Commercio{% endblock %}
 
 {% block main_content %}
-<div class="main-content">
-
-    <div class="content-left">
-        <article class="article-full">
-            
-            <h1>{{ noticia.titulo }}</h1>
-            
-            <p class="article-meta" style="font-style: italic; color: #555; margin-bottom: 20px;">
-                <strong>Categoria:</strong> 
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=noticia.categoria.pk %}">
-                    {{ noticia.categoria.nome }}
-                </a> <br>
-                <strong>Publicado em:</strong> {{ noticia.data_publicacao|date:"d/m/Y \à\s H:i" }}
-            </p>
-         
-            <div class="article-body" style="font-size: 1.1em; line-height: 1.6;">
-                {{ noticia.conteudo|linebreaks }}
-            </div>
-
-        </article>
-
-        <!-- SEÇÃO DE COMENTÁRIOS (NOVA) -->
-        <section class="comentarios-section" style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 30px;">
-            <h2 style="color: #2c3e50; margin-bottom: 25px;">Comentários ({{ comentarios.count }})</h2>
-            
-            <!-- Mensagens do sistema -->
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="padding: 10px; margin-bottom: 15px; border-radius: 4px; 
-                    {% if message.tags == 'success' %}background: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}
-                    {% if message.tags == 'error' %}background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% endif %}
-                    {% if message.tags == 'info' %}background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;{% endif %}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
+<article class="article-detail">
+    <header class="article-header">
+        <h1 class="article-title">{{ artigo.titulo }}</h1>
+        <div class="article-meta">
+            <span class="publish-date">Publicado em {{ artigo.data_publicacao|date:"d/m/Y" }}</span>
+            {% if artigo.categoria %}
+            <span class="article-category">{{ artigo.categoria.nome }}</span>
             {% endif %}
-            
-            <!-- Formulário de Comentário -->
-            {% if user.is_authenticated %}
-            <div class="comentario-form" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                <h4 style="margin-bottom: 15px; color: #2c3e50;">Deixe seu comentário</h4>
-                <form method="post">
-                    {% csrf_token %}
-                    <div style="margin-bottom: 15px;">
-                        {{ comentario_form.texto }}
-                        {% if comentario_form.texto.errors %}
-                        <div style="color: #dc3545; font-size: 0.9em; margin-top: 5px;">
-                            {{ comentario_form.texto.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-                        Enviar Comentário
-                    </button>
-                </form>
-            </div>
-           {% else %}
-<div class="alert alert-info" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 4px; border: 1px solid #bee5eb; margin-bottom: 30px;">
-   <a href="/accounts/login/?next={{ request.path }}" style="color: #007bff; text-decoration: underline;">Faça login</a> para comentar.
-</div>
-{% endif %}
+        </div>
+    </header>
 
-            <!-- Lista de Comentários -->
-            <div class="comentarios-lista">
-                {% for comentario in comentarios %}
-                <div class="comentario-item" style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div class="comentario-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <div>
-                            <strong style="color: #2c3e50; font-size: 1.1em;">
-                                {{ comentario.autor.get_full_name|default:comentario.autor.username }}
-                            </strong>
-                            <small style="color: #6c757d; display: block; margin-top: 2px;">
-                                {{ comentario.data_criacao|date:"d/m/Y \à\s H:i" }}
-                            </small>
-                        </div>
-                        
-                        <!-- Botão Excluir (apenas para autor ou staff) -->
-                        {% if user == comentario.autor or user.is_staff %}
-                        <form method="post" action="{% url 'jornal_app:comentario_delete' comentario.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-excluir" 
-                                    onclick="return confirm('Tem certeza que deseja excluir este comentário?')"
-                                    style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 0.8em; cursor: pointer;">
-                                Excluir
-                            </button>
-                        </form>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="comentario-texto" style="color: #495057; line-height: 1.5; font-size: 1em;">
-                        {{ comentario.texto|linebreaks }}
-                    </div>
-                </div>
-                {% empty %}
-                <div class="sem-comentarios" style="text-align: center; padding: 30px; color: #6c757d; font-style: italic;">
-                    <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-        <!-- FIM DA SEÇÃO DE COMENTÁRIOS -->
-
+    <div class="article-content">
+        {{ artigo.conteudo|linebreaks }}
     </div>
 
-</div>
+    <footer class="article-footer">
+        <div class="article-actions">
+            <button onclick="shareNews('{{ artigo.titulo }}', '{{ request.build_absolute_uri }}')" 
+                    class="share-btn">
+                Compartilhar
+            </button>
+        </div>
+    </footer>
+</article>
+
+<section class="related-articles">
+    <h2>Notícias Relacionadas</h2>
+    <div class="related-grid">
+        {% for related in relacionados %}
+        <article class="related-card">
+            <h3><a href="{% url 'jornal_app:artigo' pk=related.pk %}">{{ related.titulo }}</a></h3>
+            <p>{{ related.conteudo|truncatewords:15 }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

@@ -1,68 +1,93 @@
-{% load static %}
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Jornal do Commercio{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <title>{% block title %}Jornal do Commercio - Informação com credibilidade{% endblock %}</title>
+    
+    <!-- CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
-
-        <div class="newspaper-title">JORNAL DO COMMERCIO</div>
-        <div class="tagline">Informação com credibilidade</div>
-        
-
-        <nav class="nav-menu">
-            {% for categoria in categorias %}
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=categoria.pk %}">{{ categoria.nome|upper }}</a>
-            {% endfor %}
-        </nav>
-        
-        <div class="search-section">
-            <form class="search-container" id="search-form" 
-                  action="{% url 'jornal_app:noticia_search' %}" method="GET">
-                <input type="text" class="search-input" placeholder="Buscar notícias, artigos, temas..." 
-                       id="search-input" name="q">
-                <button type="submit" class="search-button">PESQUISAR</button>
-            </form>
+        <!-- Logo e Título Principal -->
+        <div class="header-main">
+            <div class="container">
+                <div class="logo-section">
+                    <!-- LOGO ADICIONADO AQUI -->
+                    <div class="logo-container">
+                        <img src="{% static 'images/logo.png' %}" alt="Jornal do Commercio" class="site-logo">
+                        <h1 class="logo">Jornal do Commercio</h1>
+                    </div>
+                </div>
+            </div>
         </div>
-    </header>
-    
-    <div class="main-content">
-        <div class="content-left">
+
+        <!-- Links Superiores -->
+        <div class="header-top">
+            <div class="container">
+                <nav class="top-links">
+                    <a href="#sobre" class="top-link">Sobre nós</a>
+                    <a href="#newsletter" class="top-link">Newsletter</a>
+                    <a href="#suporte" class="top-link">Suporte</a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Linha Divisória -->
+        <div class="header-divider">
+            <div class="container">
+                <div class="divider-line"></div>
+            </div>
+        </div>
+
+        <!-- Menu de Navegação Principal -->
+       <!-- Menu de Navegação Principal -->
+<!-- Menu de Navegação Principal -->
+<!-- Menu de Navegação Principal -->
+<!-- Menu de Navegação Principal - COM IDs CORRETOS -->
+<div class="header-bottom">
+    <div class="container">
+        <nav class="main-nav">
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=10 %}" class="nav-item">POLÍTICA</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=2 %}" class="nav-item">ESPORTES</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=3 %}" class="nav-item">ECONOMIA</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=4 %}" class="nav-item">TECNOLOGIA</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=11 %}" class="nav-item">SAÚDE</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=12 %}" class="nav-item">CIÊNCIA</a>
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=6 %}" class="nav-item">GERAL</a>
+        </nav>
+    </div>
+</div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
             {% block main_content %}
             {% endblock %}
         </div>
-        
-        <div class="sidebar">
-            {% block sidebar %}
-            <div class="live-section">
-                <h2>AO VIVO</h2>
-                <p>Canal</p>
-            </div>
-            
-            <div class="info-section">
-                <h3>Informações do Dia</h3>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Previsão diária</td>
-                        <td class="info-value">30°C / 27°C</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Cotação do dia</td>
-                        <td class="info-value">Dólar R$ 5,351<br>Euro R$ 7,431</td>
-                    </tr>
-                </table>
-            </div>
-            {% endblock %}
-        </div>
-    </div>
+    </main>
 
-    <footer>
-        <p>&copy; 2025 Jornal do Commercio. Todos os direitos reservados.</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Jornal do Commercio</h3>
+                    <p>Informação com credibilidade</p>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

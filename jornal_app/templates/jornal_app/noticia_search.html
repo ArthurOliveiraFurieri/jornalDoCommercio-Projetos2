@@ -1,30 +1,40 @@
 {% extends "jornal_app/base.html" %}
+{% load static %}
 
-{% block title %}Resultados para "{{ query }}" - Jornal do Commercio{% endblock %}
+{% block title %}Busca: {{ query }} - Jornal do Commercio{% endblock %}
 
 {% block main_content %}
-    
-    <h1>Resultados da busca por: "{{ query }}"</h1>
-    <hr>
+<div class="search-results-content">
+    <div class="search-header">
+        <h1 class="search-title">Resultados da Busca</h1>
+        {% if query %}
+            <p class="search-query">Buscando por: "{{ query }}"</p>
+        {% endif %}
+    </div>
 
-    {% if noticias %}
-        {% for noticia in noticias %}
-            <div class="article">
-                <h2>
-                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}">
-                        {{ noticia.titulo }}
-                    </a>
-                    {% if noticia.exclusiva %}
-                        <span style="color: #c00;">[Exclusivo]</span>
-                    {% endif %}
-                </h2>
-                <p>{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
-                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="read-more">Veja mais →</a>
+    <div class="search-results">
+        {% if noticias %}
+            <p class="results-count">{{ noticias|length }} resultado(s) encontrado(s)</p>
+            
+            <div class="news-grid">
+                {% for noticia in noticias %}
+                <article class="news-card">
+                    <h2 class="news-title">{{ noticia.titulo }}</h2>
+                    <p class="news-date">{{ noticia.data_publicacao|date:"d/m/Y" }}</p>
+                    <p class="news-excerpt">{{ noticia.conteudo|truncatewords:30 }}</p>
+                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="news-link">Continuar lendo →</a>
+                </article>
+                {% endfor %}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>Nenhum resultado encontrado para os termos pesquisados.</p>
-        <p>Tente usar palavras-chave diferentes ou mais genéricas.</p>
-    {% endif %}
-
+        {% else %}
+            <div class="empty-state">
+                {% if query %}
+                    <p>Nenhuma notícia encontrada para "{{ query }}"</p>
+                {% else %}
+                    <p>Digite um termo para buscar notícias</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

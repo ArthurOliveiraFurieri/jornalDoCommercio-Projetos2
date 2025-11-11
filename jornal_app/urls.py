@@ -13,6 +13,11 @@ urlpatterns = [
     path('editor/categorias/<int:pk>/excluir/', views.CategoriaDeleteView.as_view(), name='categoria_delete'),
     path('comentario/<int:pk>/excluir/', views.ComentarioDeleteView.as_view(), name='comentario_delete'),
     
-    # ✅ URL simplificada - sem importação complexa
+    # ✅ URLs para API
     path('importar-noticias/', views.importar_noticias, name='importar_noticias'),
+    path('criar-categorias-api/', views.criar_categorias_api, name='criar_categorias_api'),
+    
+    # ✅ URLs PARA RESET (USE APENAS ESTAS)
+    path('reset-total/', views.reset_total, name='reset_total'),
+    path('criar-categorias-definitivas/', views.criar_categorias_definitivas, name='criar_categorias_definitivas'),
 ]

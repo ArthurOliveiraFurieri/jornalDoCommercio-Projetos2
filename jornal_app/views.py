@@ -78,15 +78,6 @@ class HomeView(TemplateView):
         
         context['artigos_recentes'] = Noticia.objects.filter(destaque=False).order_by('-data_publicacao')[:3]
         
-        # 4. Informações do Dia (Mantemos estático por enquanto)
-        #    No futuro, isso pode vir de uma API de clima/finanças.
-        context['informacoes_dia'] = {
-            'temperatura_max': '30°C',
-            'temperatura_min': '27°C',
-            'dolar': 'R$ 5,351',
-            'euro': 'R$ 7,431'
-        }
-        
         return context
 
 
@@ -216,13 +207,39 @@ def noticia_search(request):
 # === FUNÇÕES PARA IMPORTAR NOTÍCIAS DA NEWS DATA API ===
 
 @staff_member_required
+def criar_categorias_api(request):
+    """
+    Cria as categorias que a API realmente suporta
+    """
+    categorias_api = [
+        'Política', 'Esportes', 'Economia', 'Tecnologia', 
+        'Entretenimento', 'Saúde', 'Ciência', 'Geral'
+    ]
+    
+    resultados = []
+    for nome in categorias_api:
+        cat, created = Categoria.objects.get_or_create(nome=nome)
+        if created:
+            resultados.append(f"✅ {nome} criada (ID: {cat.id})")
+        else:
+            resultados.append(f"⚠️ {nome} já existe (ID: {cat.id})")
+    
+    messages.success(request, "Categorias da API criadas/verificadas!")
+    for resultado in resultados:
+        messages.info(request, resultado)
+    
+    return redirect('jornal_app:importar_noticias')
+
+@staff_member_required
 def importar_noticias(request):
     """
-    View para importar notícias da NewsDataAPI - CORRIGIDA
+    View para importar notícias da NewsDataAPI - COM FILTRO POR CATEGORIA
     """
-    # Verificar se a chave API está configurada
     api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
     api_configurada = bool(api_key and api_key.strip() and api_key != 'sua_chave_api_aqui')
+    
+    # Obter categorias disponíveis
+    categorias = Categoria.objects.all()
     
     if request.method == 'POST':
         if not api_configurada:
@@ -230,16 +247,23 @@ def importar_noticias(request):
             return redirect('jornal_app:importar_noticias')
             
         try:
-            # Tenta usar requests primeiro, depois fallback para urllib
-            try:
-                quantidade_importada = importar_noticias_newsdata_requests()
-            except ImportError:
-                quantidade_importada = importar_noticias_newsdata_urllib()
-                
-            if quantidade_importada > 0:
-                messages.success(request, f'✅ {quantidade_importada} notícias importadas com sucesso da NewsDataAPI!')
+            # Obter categoria selecionada (ou importar para todas)
+            categoria_id = request.POST.get('categoria')
+            
+            if categoria_id:
+                # Importar para uma categoria específica
+                categoria_filtro = get_object_or_404(Categoria, pk=categoria_id)
+                quantidade_importada = importar_noticias_por_categoria(categoria_filtro)
+                messages.success(request, f'✅ {quantidade_importada} notícias de {categoria_filtro.nome} importadas!')
             else:
-                messages.info(request, 'ℹ️ Nenhuma nova notícia foi importada. Todas as notícias já existem no banco de dados.')
+                # Importar para TODAS as categorias
+                total_importadas = 0
+                for categoria in categorias:
+                    quantidade = importar_noticias_por_categoria(categoria)
+                    total_importadas += quantidade
+                    print(f"📰 {quantidade} notícias importadas para {categoria.nome}")
+                
+                messages.success(request, f'✅ {total_importadas} notícias importadas para TODAS as categorias!')
                 
         except Exception as e:
             messages.error(request, f'❌ Erro ao importar notícias: {str(e)}')
@@ -248,97 +272,65 @@ def importar_noticias(request):
     
     context = {
         'api_configurada': api_configurada,
-        'NEWSDATA_API_KEY': api_key
+        'NEWSDATA_API_KEY': api_key,
+        'categorias': categorias
     }
     return render(request, 'admin/importar_noticias.html', context)
 
-def importar_noticias_newsdata_requests():
+def importar_noticias_por_categoria(categoria):
     """
-    Função para importar notícias usando requests - CORRIGIDA
+    Importa notícias específicas para uma categoria
     """
-    # Configurações da API
     api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
     
     if not api_key:
-        raise Exception('Chave API não configurada. Adicione NEWSDATA_API_KEY no settings.py')
+        raise Exception('Chave API não configurada')
     
     base_url = "https://newsdata.io/api/1/news"
     
-    # Parâmetros SIMPLIFICADOS - sem categoria múltipla
-    params = {
-        'apikey': api_key,
-        'country': 'br',
-        'language': 'pt',
-        'size': 10  # Reduzindo para 10 para testar
+    # Mapear categoria do sistema para categoria da API
+    mapeamento_para_api = {
+        'Política': 'politics',
+        'Esportes': 'sports', 
+        'Economia': 'business',
+        'Tecnologia': 'technology',
+        'Entretenimento': 'entertainment',
+        'Saúde': 'health',
+        'Ciência': 'science',
+        'Geral': 'general'
     }
     
-    print(f"🔍 Fazendo requisição para: {base_url}")
-    print(f"🔍 Parâmetros: {params}")
+    categoria_api = mapeamento_para_api.get(categoria.nome, 'general')
+    print(f"🎯 Buscando notícias: {categoria.nome} → {categoria_api}")
     
-    response = requests.get(base_url, params=params, timeout=30)
-    
-    print(f"🔍 Status Code: {response.status_code}")
-    
-    if response.status_code != 200:
-        print(f"🔍 Erro detalhado: {response.text}")
-        response.raise_for_status()
-    
-    data = response.json()
-    print(f"🔍 Total de artigos recebidos: {len(data.get('results', []))}")
-    
-    articles = data.get('results', [])
-    return processar_artigos(articles)
-
-def importar_noticias_newsdata_urllib():
-    """
-    Função para importar notícias usando urllib (fallback) - CORRIGIDA
-    """
-    # Configurações da API
-    api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
-    
-    if not api_key:
-        raise Exception('Chave API não configurada. Adicione NEWSDATA_API_KEY no settings.py')
-    
-    base_url = "https://newsdata.io/api/1/news"
-    
-    # Parâmetros SIMPLIFICADOS
     params = {
         'apikey': api_key,
-        'country': 'br',
+        'country': 'br', 
         'language': 'pt',
-        'size': 10
+        'category': categoria_api,
+        'size': 5
     }
-    
-    # Construir URL com parâmetros
-    from urllib.parse import urlencode
-    query_string = urlencode(params)
-    url = f"{base_url}?{query_string}"
-    
-    print(f"🔍 URL da requisição: {url}")
-    
-    # Criar request
-    from urllib.request import Request, urlopen
-    from urllib.error import URLError, HTTPError
-    import ssl
-    import json
-    
-    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    
-    # Fazer a requisição
-    context = ssl._create_unverified_context()
     
     try:
-        with urlopen(req, timeout=30, context=context) as response:
-            data = json.loads(response.read().decode())
-            print(f"🔍 Status Code: {response.status}")
-            articles = data.get('results', [])
-            return processar_artigos(articles)
-    except (URLError, HTTPError) as e:
-        print(f"🔍 Erro detalhado: {e}")
-        raise Exception(f"Erro na requisição para NewsDataAPI: {str(e)}")
-def processar_artigos(articles):
+        response = requests.get(base_url, params=params, timeout=30)
+        
+        if response.status_code != 200:
+            print(f"❌ Erro na API para {categoria.nome}: {response.status_code}")
+            return 0
+        
+        data = response.json()
+        articles = data.get('results', [])
+        
+        print(f"📰 {len(articles)} notícias recebidas para {categoria.nome}")
+        return processar_artigos_para_categoria(articles, categoria)
+        
+    except Exception as e:
+        print(f"❌ Erro ao buscar notícias para {categoria.nome}: {str(e)}")
+        return 0
+
+def processar_artigos_para_categoria(articles, categoria):
     """
-    Processa os artigos e salva no banco de dados
+    Processa artigos para uma categoria específica
     """
     quantidade_importada = 0
     
@@ -347,10 +339,6 @@ def processar_artigos(articles):
         url_fonte = article.get('link', '')
         if Noticia.objects.filter(url_fonte=url_fonte).exists():
             continue
-        
-        # Mapear categoria
-        categoria_api = article.get('category', ['general'])[0] if isinstance(article.get('category'), list) else article.get('category', 'general')
-        categoria_obj = mapear_categoria(categoria_api)
         
         # Converter data de publicação
         data_publicacao = parse_date(article.get('pubDate', ''))
@@ -366,41 +354,40 @@ def processar_artigos(articles):
         noticia = Noticia(
             titulo=article.get('title', '')[:200],
             conteudo=conteudo[:2000],
-            categoria=categoria_obj,
+            categoria=categoria,  # Usa a categoria específica
             url_fonte=url_fonte[:500],
             imagem_url=article.get('image_url', '')[:500],
             autor_fonte=article.get('source_id', 'Fonte Externa')[:100],
             data_publicacao=data_publicacao,
-            destaque=False
+            destaque=(categoria.nome == 'Política')  # Destaque só para Política
         )
         
         noticia.save()
         quantidade_importada += 1
+        print(f"✅ Notícia salva: {noticia.titulo[:50]}...")
     
     return quantidade_importada
 
 def mapear_categoria(categoria_api):
     """
-    Mapeia a categoria da API para uma categoria do sistema - CORRIGIDA
+    Mapeia a categoria da API para uma categoria do sistema
     """
     mapeamento = {
-        'technology': 'Tecnologia',
         'politics': 'Política',
         'sports': 'Esportes',
-        'health': 'Saúde',
+        'business': 'Economia', 
+        'technology': 'Tecnologia',
         'entertainment': 'Entretenimento',
-        'business': 'Negócios',
+        'health': 'Saúde',
         'science': 'Ciência',
         'general': 'Geral'
     }
     
     nome_categoria = mapeamento.get(categoria_api, 'Geral')
     
-    # Buscar ou criar a categoria SEM o campo descricao
-    categoria, created = Categoria.objects.get_or_create(
-        nome=nome_categoria
-        # Remova a parte do 'defaults' se seu modelo não tem descricao
-    )
+    # Buscar ou criar a categoria
+    categoria, created = Categoria.objects.get_or_create(nome=nome_categoria)
+    print(f"🔧 Categoria mapeada: {categoria_api} → {nome_categoria} (ID: {categoria.id})")
     
     return categoria
 
@@ -432,3 +419,46 @@ def parse_date(date_string):
             pass
         
         return datetime.now()
+    
+# === FUNÇÕES PARA RESET E CONFIGURAÇÃO ===
+
+@staff_member_required
+def reset_total(request):
+    """
+    LIMPA TUDO e começa do zero
+    """
+    # Deletar tudo
+    Noticia.objects.all().delete()
+    Categoria.objects.all().delete()
+    
+    messages.success(request, "🗑️ Banco limpo! Pronto para começar do zero.")
+    return redirect('jornal_app:criar_categorias_definitivas')
+
+@staff_member_required
+def criar_categorias_definitivas(request):
+    """
+    Cria as 7 categorias DEFINITIVAS na ordem correta
+    """
+    categorias_definitivas = [
+        'Política',      # ID 1
+        'Esportes',      # ID 2  
+        'Economia',      # ID 3
+        'Tecnologia',    # ID 4
+        'Saúde',         # ID 5
+        'Ciência',       # ID 6
+        'Geral'          # ID 7
+    ]
+    
+    for nome in categorias_definitivas:
+        cat, created = Categoria.objects.get_or_create(nome=nome)
+        print(f"🎯 {nome} → ID: {cat.id}")
+    
+    messages.success(request, "✅ 7 categorias criadas na ordem DEFINITIVA!")
+    
+    # Mostrar os IDs criados
+    categorias = Categoria.objects.all().order_by('id')
+    for cat in categorias:
+        messages.info(request, f"ID {cat.id}: {cat.nome}")
+    
+    return redirect('jornal_app:importar_noticias')
+
