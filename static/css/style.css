@@ -10,6 +10,7 @@ body {
     line-height: 1.6;
     color: #333;
     background: #fff;
+    padding-top: 195px;
 }
 
 .container {
@@ -23,6 +24,11 @@ body {
 .header {
     background: #ffffff;
     border-bottom: 2px solid #1a1a1a;
+    position: fixed;  
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 .header-main {
