@@ -21,7 +21,7 @@ class MaisNoticiasView(ListView):
     model = Noticia
     template_name = 'jornal_app/partials/noticia_feed.html'
     context_object_name = 'noticias'
-    paginate_by = 6 
+    paginate_by = 4
 
     def get_queryset(self):
         return Noticia.objects.all().order_by('-data_publicacao')[4:]

@@ -7,26 +7,21 @@
 
         {% with destaque_principal=destaques.0 %}
             {% if destaque_principal %}
-
             <a href="{% url 'jornal_app:artigo' pk=destaque_principal.pk %}" class="card-link-wrapper">
                 <article class="main-feature">
-
                     {% if destaque_principal.imagem_url %}
                     <div class="feature-image-container">
                         <img src="{{ destaque_principal.imagem_url }}" alt="{{ destaque_principal.titulo }}" class="feature-image">
                     </div>
                     {% endif %}
-
                     <h1 class="feature-title">
                         {{ destaque_principal.titulo }}
                     </h1>
-
                     <p class="feature-description">
                         {{ destaque_principal.conteudo|truncatewords:30|linebreaksbr }}
                     </p>
                 </article>
             </a>
-
             {% else %}
             <article class="main-feature">
                 <h1 class="feature-title">Bem-vindo ao Jornal do Commercio</h1>
@@ -40,33 +35,27 @@
 
         <div class="news-row">
             {% for noticia in artigos_recentes %}
-    
             <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
-
                 <article class="news-card">
                     {% if noticia.imagem_url %}
                     <div class="news-image-container">
                         <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
                     </div>
                     {% endif %}
-
                     <h2 class="news-title">
                         {{ noticia.titulo }}
                     </h2>
-
                     <p class="news-excerpt">
                         {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
                     </p>
-
-                    </article>
-                
-            </a> {% endfor %}
-        </div>
-
-        </div> <div id="scroll-trigger" style="height: 50px;">
+                </article>
+            </a> 
+            {% endfor %}
+        </div> <div id="infinite-scroll-feed">
             </div>
-        <div class="horizontal-sidebar">
 
+        <div id="scroll-trigger" style="height: 50px;">
+            </div>
 
         <div class="horizontal-sidebar">
             <div class="sidebar-inline">
@@ -87,37 +76,27 @@
                     <span class="inline-mega">00 00 00 00 00 00</span>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-</div> </div> <script>
+        </div> </div> </div> <script>
     document.addEventListener('DOMContentLoaded', (event) => {
-        // Pega os elementos principais
         const trigger = document.getElementById('scroll-trigger');
-        const newsRow = document.querySelector('.news-row');
+        const feedContainer = document.getElementById('infinite-scroll-feed');
         
-        // Começamos na página 1 (que são os artigos 5-10, já que pulamos os 4 primeiros)
         let page = 1;
-        let isLoading = false; // Trava para evitar carregar várias páginas ao mesmo tempo
+        let isLoading = false; 
 
-        // Função que busca mais notícias
         const loadMoreNews = async () => {
-            if (isLoading) return; // Se já estiver carregando, não faz nada
+            if (isLoading) return; 
             isLoading = true;
             
             try {
-                // 1. Busca a próxima página na nossa nova URL
                 const response = await fetch(`/feed/?page=${page}`);
                 const html = await response.text();
 
                 if (html.trim().length > 0) {
-                    // 2. Adiciona o HTML (os novos cards) no final da fileira
-                    newsRow.insertAdjacentHTML('beforeend', html);
-                    page++; // Incrementa o contador de página
+                    feedContainer.insertAdjacentHTML('beforeend', html);
+                    page++; 
                     isLoading = false;
                 } else {
-                    // 3. Se não vier mais HTML, para de observar
                     trigger.innerHTML = "<p style='text-align:center; color:#888;'>Fim das notícias.</p>";
                     observer.unobserve(trigger);
                 }
@@ -126,19 +105,17 @@
                 isLoading = false;
             }
         };
-
-        // 4. O "Observador" que fica olhando o gatilho
+        
         const observer = new IntersectionObserver((entries) => {
-            // Se o gatilho estiver visível na tela
             if (entries[0].isIntersecting) {
                 loadMoreNews();
             }
         }, {
-            rootMargin: '100px', // Carrega 100px *antes* de chegar no fim
+            rootMargin: '100px', 
         });
 
-        // 5. Manda o observador "assistir" o gatilho
         observer.observe(trigger);
     });
 </script>
+
 {% endblock main_content %}
