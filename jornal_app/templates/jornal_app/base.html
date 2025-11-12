@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Jornal do Commercio - Informação com credibilidade{% endblock %}</title>
     
-    <!-- CSS -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
-        <!-- Logo e Título Principal -->
         <div class="header-main">
             <div class="container">
                 <div class="logo-section">
@@ -27,7 +24,6 @@
             </div>
         </div>
 
-        <!-- Links Superiores -->
         <div class="header-top">
             <div class="container">
                 <nav class="top-links">
@@ -35,31 +31,56 @@
                     <a href="#newsletter" class="top-link">Newsletter</a>
                     <a href="#suporte" class="top-link">Suporte</a>
                 </nav>
+
+                <button id="search-toggle-btn" class="search-toggle-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
             </div>
         </div>
 
-        <!-- Linha Divisória -->
         <div class="header-divider">
             <div class="container">
                 <div class="divider-line"></div>
             </div>
         </div>
     </header>
-<div class="header-bottom">
-    <div class="container">
-        <nav class="main-nav">
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=10 %}" class="nav-item">POLÍTICA</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=2 %}" class="nav-item">ESPORTES</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=3 %}" class="nav-item">ECONOMIA</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=4 %}" class="nav-item">TECNOLOGIA</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=11 %}" class="nav-item">SAÚDE</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=12 %}" class="nav-item">CIÊNCIA</a>
-            <a href="{% url 'jornal_app:noticias_por_categoria' pk=6 %}" class="nav-item">GERAL</a>
-        </nav>
-    </div>
-</div>
 
-    <!-- Main Content -->
+    <div class="header-bottom">
+        <div class="container">
+
+            <nav class="main-nav">
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=10 %}" class="nav-item">POLÍTICA</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=2 %}" class="nav-item">ESPORTES</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=3 %}" class="nav-item">ECONOMIA</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=4 %}" class="nav-item">TECNOLOGIA</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=11 %}" class="nav-item">SAÚDE</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=12 %}" class="nav-item">CIÊNCIA</a>
+
+                <a href="{% url 'jornal_app:noticias_por_categoria' pk=6 %}" class="nav-item">GERAL</a>
+
+            </nav>
+
+        </div>
+
+    </div>
+
+    <div id="search-section" class="search-section">
+        <form class="search-container" action="{% url 'jornal_app:noticia_search' %}" method="GET">
+            <input type="text" class="search-input" placeholder="Buscar notícias, artigos, temas..." name="q" autofocus>
+            <button type="submit" class="search-button">Buscar</button>
+        </form>
+    </div>
+
+
     <main class="main-content">
         <div class="container">
             {% block main_content %}
@@ -67,7 +88,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -79,8 +99,28 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pega os elementos
+        const searchToggleBtn = document.getElementById('search-toggle-btn');
+        const searchSection = document.getElementById('search-section');
+
+        if (searchToggleBtn && searchSection) {
+            
+            // 2. Ouve o clique no ícone
+            searchToggleBtn.addEventListener('click', function() {
+                
+                searchSection.classList.toggle('active');
+
+                if (searchSection.classList.contains('active')) {
+                    searchSection.querySelector('.search-input').focus();
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>

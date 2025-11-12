@@ -16,15 +16,25 @@
         {% if noticias %}
             <p class="results-count">{{ noticias|length }} resultado(s) encontrado(s)</p>
             
-            <div class="news-grid">
-                {% for noticia in noticias %}
-                <article class="news-card">
-                    <h2 class="news-title">{{ noticia.titulo }}</h2>
-                    <p class="news-date">{{ noticia.data_publicacao|date:"d/m/Y" }}</p>
-                    <p class="news-excerpt">{{ noticia.conteudo|truncatewords:30 }}</p>
-                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="news-link">Continuar lendo →</a>
-                </article>
-                {% endfor %}
+            <div class="news-grid"> {% for noticia in noticias %}
+                
+                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+                    
+                    <article class="news-card">
+                        
+                        {% if noticia.imagem_url %}
+                        <div class="news-image-container">
+                            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+                        </div>
+                        {% endif %}
+
+                        <h2 class="news-title">{{ noticia.titulo }}</h2>
+                        <p class="news-date">{{ noticia.data_publicacao|date:"d/m/Y" }}</p>
+                        <p class="news-excerpt">{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+                        
+                        </article>
+                    
+                </a> {% endfor %}
             </div>
         {% else %}
             <div class="empty-state">
@@ -37,4 +47,4 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
+{% endblock main_content %}

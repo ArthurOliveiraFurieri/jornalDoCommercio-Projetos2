@@ -122,6 +122,68 @@ body {
     content: none;
 }
 
+.search-toggle-btn {
+    position: absolute;
+    right: 30px; 
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1a1a1a;
+    padding: 5px;
+}
+.search-toggle-btn svg {
+    width: 28px; 
+    height: 28px;
+}
+
+.search-section {
+    background: #f1f1f1;
+    padding: 0 20px; 
+    overflow: hidden;
+    
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.4s ease-out;
+}
+
+.search-section.active {
+    padding: 20px; 
+    max-height: 100px; 
+    opacity: 1;
+}
+
+/* 4. O Formulário dentro da seção */
+.search-container {
+    display: flex;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-input {
+    flex-grow: 1; /* Ocupa o máximo de espaço */
+    font-size: 1.2rem;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px; /* Cantos arredondados na esquerda */
+}
+.search-input:focus {
+    outline: 2px solid #911818; /* Destaque na cor do seu site */
+    border-color: #911818;
+}
+
+.search-button {
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    border: none;
+    background: #911818; /* Cor vermelha do seu site */
+    color: white;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0; /* Cantos arredondados na direita */
+    font-weight: 600;
+}
+
 /* ===== MAIN CONTENT ===== */
 
 .main-content {
@@ -421,3 +483,4 @@ body {
         margin-left: 8px;
     }
 }
+
