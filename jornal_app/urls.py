@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 app_name = 'jornal_app'
 
 urlpatterns = [
@@ -11,8 +12,9 @@ urlpatterns = [
     path('editor/categorias/', views.CategoriaListView.as_view(), name='categoria_list'),
     path('editor/categorias/nova/', views.CategoriaCreateView.as_view(), name='categoria_create'),
     path('editor/categorias/<int:pk>/excluir/', views.CategoriaDeleteView.as_view(), name='categoria_delete'),
-    path('comentario/<int:pk>/excluir/', views.ComentarioDeleteView.as_view(), name='comentario_delete'),
     path('feed/', views.MaisNoticiasView.as_view(), name='noticia_feed'),
+    path('comentario/<int:pk>/excluir/', views.comentario_delete.as_view(), name='comentario_delete'),
+    
     
     # ✅ URLs para API
     path('importar-noticias/', views.importar_noticias, name='importar_noticias'),

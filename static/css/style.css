@@ -187,14 +187,14 @@ body {
 }
 
 .search-input {
-    flex-grow: 1; /* Ocupa o máximo de espaço */
+    flex-grow: 1; 
     font-size: 1.2rem;
     padding: 10px 15px;
     border: 1px solid #ccc;
-    border-radius: 5px 0 0 5px; /* Cantos arredondados na esquerda */
+    border-radius: 5px 0 0 5px; 
 }
 .search-input:focus {
-    outline: 2px solid #911818; /* Destaque na cor do seu site */
+    outline: 2px solid #911818; 
     border-color: #911818;
 }
 
@@ -202,10 +202,10 @@ body {
     font-size: 1.1rem;
     padding: 10px 20px;
     border: none;
-    background: #911818; /* Cor vermelha do seu site */
+    background: #911818; 
     color: white;
     cursor: pointer;
-    border-radius: 0 5px 5px 0; /* Cantos arredondados na direita */
+    border-radius: 0 5px 5px 0; 
     font-weight: 600;
 }
 
@@ -380,7 +380,7 @@ body {
     background: #1a1a1a;
     color: white;
     padding: 40px 0;
-    margin-top: 60px; /* Adicionado para dar espaço */
+    margin-top: 60px;
 }
 
 .footer-content {
@@ -398,10 +398,8 @@ body {
 }
 
 /* ===== RESPONSIVIDADE ===== */
-/* (Mesclando os dois arquivos) */
 
 @media (max-width: 1024px) {
-    /* Regras do primeiro CSS */
     .news-row {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -414,7 +412,6 @@ body {
 }
 
 @media (max-width: 968px) {
-    /* Regras do seu segundo CSS */
     .header-main {
         padding: 25px 0 15px 0;
     }
@@ -425,7 +422,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    /* Regras do primeiro CSS */
     .news-row {
         grid-template-columns: 1fr;
     }
@@ -452,7 +448,6 @@ body {
         height: 40px;
     }
 
-    /* Regras do seu segundo CSS (priorizadas) */
     .header-main {
         padding: 20px 0 15px 0;
     }
@@ -472,7 +467,6 @@ body {
 }
 
 @media (max-width: 480px) {
-    /* Regras do primeiro CSS */
     .site-logo {
         width: 35px;
         height: 35px;
@@ -482,7 +476,6 @@ body {
         gap: 8px;
     }
 
-    /* Regras do seu segundo CSS (priorizadas) */
     .header-main {
         padding: 15px 0 10px 0;
     }
@@ -492,8 +485,8 @@ body {
     }
     
     .top-links {
-        flex-wrap: wrap; /* Usa a sua regra */
-        gap: 15px; /* Usa a sua regra */
+        flex-wrap: wrap; 
+        gap: 15px; 
     }
     
     .main-nav {

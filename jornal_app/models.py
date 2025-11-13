@@ -70,34 +70,28 @@ class Noticia(models.Model):
 
 class Comentario(models.Model):
     """
-    Representa um comentário em uma notícia.
+    Representa um comentário de um usuário em uma notícia.
     """
     noticia = models.ForeignKey(
         Noticia, 
         on_delete=models.CASCADE, 
-        related_name='comentarios',
-        verbose_name="Notícia"
+        related_name='comentarios' 
     )
     autor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        verbose_name="Autor"
+        on_delete=models.CASCADE
     )
-    texto = models.TextField(verbose_name="Comentário")
-    data_criacao = models.DateTimeField(default=timezone.now, verbose_name="Data de Criação")
-    ativo = models.BooleanField(
-        default=True, 
-        verbose_name="Ativo",
-        help_text="Desmarque para ocultar este comentário."
-    )
-    
+    texto = models.TextField(verbose_name="Seu Comentário")
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    ativo = models.BooleanField(default=True) 
+
     class Meta:
+        ordering = ['data_criacao'] 
         verbose_name = "Comentário"
         verbose_name_plural = "Comentários"
-        ordering = ['data_criacao']
-    
+
     def __str__(self):
-        return f'Comentário de {self.autor} em {self.noticia}'
+        return f'Comentário de {self.autor.username} em {self.noticia.titulo}'
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(

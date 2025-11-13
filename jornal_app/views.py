@@ -50,6 +50,14 @@ class NoticiaDetailView(DetailView):
         
         # Formulário para novo comentário
         context['comentario_form'] = ComentarioForm()
+
+        context['noticias_similares'] = Noticia.objects.filter(
+            categoria=noticia.categoria  
+        ).exclude(
+            pk=noticia.pk  
+        ).order_by(
+            '?'
+        )[:2]
         
         return context
     
@@ -120,7 +128,7 @@ class NoticiasPorCategoriaView(ListView):
 # --- VIEWS PARA COMENTÁRIOS ---
 
 @method_decorator(login_required, name='dispatch')
-class ComentarioDeleteView(DeleteView):
+class comentario_delete(DeleteView):
     """
     Exclui um comentário.
     """

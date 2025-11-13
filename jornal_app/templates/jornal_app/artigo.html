@@ -2,7 +2,7 @@
 {% load static %}
 
 {# Define o título da aba do navegador para o título da notícia #}
-{% block title %}{{ noticia.titulo }} - Jornal do Commercio{% endblock %}
+{% block title %}{{ noticia.titulo }} - Jornal do Comdmercio{% endblock %}
 
 {# Coloca todo o conteúdo da página dentro do bloco principal #}
 {% block main_content %}
@@ -31,7 +31,38 @@
         </div>
 
     </article>
+    <section class="related-news-section" style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 30px; text-align: left;">
+        
+        <h2 style="font-family: 'Georgia', serif; color: #1a1a1a; margin-bottom: 25px;">
+            Notícias Relacionadas
+        </h2>
 
+        <div class="news-row" style="grid-template-columns: repeat(2, 1fr);">
+            
+            {% for noticia_similar in noticias_similares %}
+                <a href="{% url 'jornal_app:artigo' pk=noticia_similar.pk %}" class="card-link-wrapper">
+                    <article class="news-card">
+                        
+                        {% if noticia_similar.imagem_url %}
+                        <div class="news-image-container">
+                            <img src="{{ noticia_similar.imagem_url }}" alt="{{ noticia_similar.titulo }}" class="news-image">
+                        </div>
+                        {% endif %}
+
+                        <h2 class="news-title">{{ noticia_similar.titulo }}</h2>
+                        
+                        <p class="news-excerpt">
+                            {{ noticia_similar.conteudo|truncatewords:20|linebreaksbr }}
+                        </p>
+
+                    </article>
+                </a>
+            {% empty %}
+                <p style="color: #6c757d; font-style: italic;">Nenhuma notícia similar encontrada.</p>
+            {% endfor %}
+
+        </div>
+    </section>
     <section class="comentarios-section" style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 30px; text-align: left;">
         
         <h2 style="font-family: 'Georgia', serif; color: #1a1a1a; margin-bottom: 25px;">
