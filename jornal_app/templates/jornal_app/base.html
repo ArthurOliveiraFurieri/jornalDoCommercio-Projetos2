@@ -17,8 +17,24 @@
             <div class="container">
                 <div class="logo-section">
                     <div class="logo-container">
+                    
+                        <a href="{% url 'jornal_app:home' %}" class="home-icon-link" title="Voltar à página inicial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </a>
+                    
                         <img src="{% static 'images/logo.png' %}" alt="Jornal do Commercio" class="site-logo">
                         <h1 class="logo">Jornal do Commercio</h1>
+                    
+                        <button id="search-toggle-btn" class="search-toggle-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    
                     </div>
                 </div>
             </div>
@@ -31,13 +47,6 @@
                     <a href="#newsletter" class="top-link">Newsletter</a>
                     <a href="#suporte" class="top-link">Suporte</a>
                 </nav>
-
-                <button id="search-toggle-btn" class="search-toggle-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </button>
             </div>
         </div>
 
@@ -50,27 +59,14 @@
 
     <div class="header-bottom">
         <div class="container">
-
             <nav class="main-nav">
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=10 %}" class="nav-item">POLÍTICA</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=2 %}" class="nav-item">ESPORTES</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=3 %}" class="nav-item">ECONOMIA</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=4 %}" class="nav-item">TECNOLOGIA</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=11 %}" class="nav-item">SAÚDE</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=12 %}" class="nav-item">CIÊNCIA</a>
-
-                <a href="{% url 'jornal_app:noticias_por_categoria' pk=6 %}" class="nav-item">GERAL</a>
-
+                {% for categoria in categorias %}
+                    <a href="{% url 'jornal_app:noticias_por_categoria' pk=categoria.pk %}" class="nav-item">
+                        {{ categoria.nome|upper }}
+                    </a>
+                {% endfor %}
             </nav>
-
         </div>
-
     </div>
 
     <div id="search-section" class="search-section">
