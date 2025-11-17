@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from django.contrib.auth import views as auth_views
 
 app_name = 'jornal_app'
 
@@ -15,7 +15,6 @@ urlpatterns = [
     path('feed/', views.MaisNoticiasView.as_view(), name='noticia_feed'),
     path('comentario/<int:pk>/excluir/', views.comentario_delete.as_view(), name='comentario_delete'),
     
-    
     # ✅ URLs para API
     path('importar-noticias/', views.importar_noticias, name='importar_noticias'),
     path('criar-categorias-api/', views.criar_categorias_api, name='criar_categorias_api'),
@@ -23,4 +22,12 @@ urlpatterns = [
     # ✅ URLs PARA RESET (USE APENAS ESTAS)
     path('reset-total/', views.reset_total, name='reset_total'),
     path('criar-categorias-definitivas/', views.criar_categorias_definitivas, name='criar_categorias_definitivas'),
+    
+    # ✅ URLs DE AUTENTICAÇÃO - CORRIGIDAS
+    path('accounts/login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html'  # ← CORRIGIDO: usa o template que já existe
+    ), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('accounts/register/', views.register, name='register'),
+    path('accounts/profile/', views.profile, name='profile'),
 ]
