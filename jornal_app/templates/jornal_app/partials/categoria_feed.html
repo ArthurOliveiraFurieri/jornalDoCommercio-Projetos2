@@ -1,0 +1,19 @@
+<div class="news-row">
+    {% for noticia in noticias %}
+    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+        <article class="news-card">
+            {% if noticia.imagem_url %}
+            <div class="news-image-container">
+                <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+            </div>
+            {% endif %}
+            <h2 class="news-title">
+                {{ noticia.titulo }}
+            </h2>
+            <p class="news-excerpt">
+                {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
+            </p>
+        </article>
+    </a>
+    {% endfor %}
+</div>

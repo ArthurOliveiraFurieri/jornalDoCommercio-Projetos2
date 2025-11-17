@@ -12,40 +12,41 @@
             <p class="category-description">Últimas notícias na categoria {{ categoria.nome }}</p>
         </div>
 
-        <!-- 3 NOTÍCIAS LADO A LADO -->
-        <div class="news-row">
-            {% for noticia in noticias %}
-                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
-                    
-                    <article class="news-card">
-                        
-                        {% if noticia.imagem_url %}
-                        <div class="news-image-container">
-                            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
-                        </div>
-                        {% endif %}
-
-                        <h2 class="news-title">{{ noticia.titulo }}</h2>
-                        
-                        <p class="news-excerpt">
-                            {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
-                        </p>
-                        
+        <!-- Container para infinite scroll -->
+        <div id="infinite-scroll-feed">
+            <!-- PRIMEIRA LINHA - 3 NOTÍCIAS LADO A LADO -->
+            <div class="news-row">
+                {% for noticia in noticias %}
+                    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+                        <article class="news-card">
+                            {% if noticia.imagem_url %}
+                            <div class="news-image-container">
+                                <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+                            </div>
+                            {% endif %}
+                            <h2 class="news-title">{{ noticia.titulo }}</h2>
+                            <p class="news-excerpt">
+                                {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
+                            </p>
                         </article>
-                    
-                </a> {% empty %}
-            <!-- QUANDO NÃO TEM NOTÍCIAS - MENSAGEM ENROLAÇÃO -->
-            {% for i in "123" %}
-            <article class="news-card placeholder">
-                <h2 class="news-title">Notícia em Produção</h2>
-                <p class="news-excerpt">
-                    Nossos editores estão apurando os fatos e preparando conteúdo exclusivo sobre {{ categoria.nome }}. Volte em breve!
-                </p>
-                <a href="#" class="read-more-link">Em breve →</a>
-            </article>
-            {% endfor %}
-            {% endfor %}
+                    </a>
+                {% empty %}
+                <!-- QUANDO NÃO TEM NOTÍCIAS - 3 PLACEHOLDERS -->
+                {% for i in "123" %}
+                <article class="news-card placeholder">
+                    <h2 class="news-title">Notícia em Produção</h2>
+                    <p class="news-excerpt">
+                        Nossos editores estão apurando os fatos e preparando conteúdo exclusivo sobre {{ categoria.nome }}. Volte em breve!
+                    </p>
+                    <a href="#" class="read-more-link">Em breve →</a>
+                </article>
+                {% endfor %}
+                {% endfor %}
+            </div>
         </div>
+
+        <!-- Trigger para infinite scroll -->
+        <div id="scroll-trigger" style="height: 50px;"></div>
 
         <!-- Sidebar Horizontal -->
         <div class="horizontal-sidebar">
@@ -70,4 +71,60 @@
         </div>
     </div>
 </div>
-{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const trigger = document.getElementById('scroll-trigger');
+        const feedContainer = document.getElementById('infinite-scroll-feed');
+
+        let page = 2; // Começa na página 2 porque a página 1 já foi carregada
+        let isLoading = false; 
+        let hasMore = true; // ← VARIÁVEL NOVA para controlar se tem mais páginas
+        const categoriaId = {{ categoria.pk }};
+
+        const loadMoreNews = async () => {
+            if (isLoading || !hasMore) return; // ← VERIFICA se ainda tem mais
+            isLoading = true;
+
+            try {
+                const response = await fetch(`/categorias/${categoriaId}/feed/?page=${page}`);
+                
+                if (response.status === 404) {
+                    // Página não existe - fim das notícias
+                    hasMore = false;
+                    trigger.innerHTML = "<p style='text-align:center; color:#888; padding: 20px;'>Fim das notícias de {{ categoria.nome }}.</p>";
+                    observer.unobserve(trigger);
+                    return;
+                }
+
+                const html = await response.text();
+
+                if (html.trim().length > 0) {
+                    feedContainer.insertAdjacentHTML('beforeend', html);
+                    page++;
+                    isLoading = false;
+                } else {
+                    // HTML vazio - fim das notícias
+                    hasMore = false;
+                    trigger.innerHTML = "<p style='text-align:center; color:#888; padding: 20px;'>Fim das notícias de {{ categoria.nome }}.</p>";
+                    observer.unobserve(trigger);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar mais notícias:', error);
+                isLoading = false;
+            }
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadMoreNews();
+            }
+        }, {
+            rootMargin: '100px',
+        });
+
+        observer.observe(trigger);
+    });
+</script>
+
+{% endblock main_content %}

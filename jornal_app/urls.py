@@ -25,9 +25,12 @@ urlpatterns = [
     
     # ✅ URLs DE AUTENTICAÇÃO - CORRIGIDAS
     path('accounts/login/', auth_views.LoginView.as_view(
-        template_name='registration/login.html'  # ← CORRIGIDO: usa o template que já existe
+        template_name='registration/login.html'
     ), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('accounts/register/', views.register, name='register'),
     path('accounts/profile/', views.profile, name='profile'),
+    
+    # ✅ INFINITE SCROLL PARA CATEGORIAS
+    path('categorias/<int:pk>/feed/', views.MaisNoticiasCategoriaView.as_view(), name='categoria_feed'),
 ]

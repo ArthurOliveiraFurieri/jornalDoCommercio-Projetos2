@@ -6,18 +6,17 @@ from django.db.models.deletion import ProtectedError
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Categoria, Noticia, Comentario
+from .models import Categoria, Noticia, Comentario, UserProfile
 from .forms import CategoriaForm, ComentarioForm
 from django.contrib.admin.views.decorators import staff_member_required
 import requests
 from django.conf import settings
 import json
 from datetime import datetime
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
 
 class MaisNoticiasView(ListView):
-    """
-    Serve os artigos para o scroll infinito, de forma paginada.
-    """
     model = Noticia
     template_name = 'jornal_app/partials/noticia_feed.html'
     context_object_name = 'noticias'
@@ -26,11 +25,7 @@ class MaisNoticiasView(ListView):
     def get_queryset(self):
         return Noticia.objects.all().order_by('-data_publicacao')[4:]
 
-
 class NoticiaDetailView(DetailView):
-    """
-    Exibe uma notícia completa.
-    """
     model = Noticia
     template_name = 'jornal_app/artigo.html'
     context_object_name = 'noticia'
@@ -39,32 +34,27 @@ class NoticiaDetailView(DetailView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
-        """
-        Adiciona o formulário de comentários e a lista de comentários ao contexto.
-        """
         context = super().get_context_data(**kwargs)
         noticia = self.get_object()
         
-        # Comentários ativos desta notícia
-        context['comentarios'] = noticia.comentarios.filter(ativo=True)
+        # Gamificação - marcar notícia lida e categoria visitada
+        if self.request.user.is_authenticated:
+            user_profile = self.request.user.userprofile
+            level_up = user_profile.marcar_noticia_lida(noticia.pk)
+            user_profile.marcar_categoria_visitada(noticia.categoria.pk)
+            
+            if level_up:
+                messages.success(self.request, f'🎉 Parabéns! Você subiu para o nível {user_profile.nivel}!')
         
-        # Formulário para novo comentário
+        context['comentarios'] = noticia.comentarios.filter(ativo=True)
         context['comentario_form'] = ComentarioForm()
-
         context['noticias_similares'] = Noticia.objects.filter(
             categoria=noticia.categoria  
-        ).exclude(
-            pk=noticia.pk  
-        ).order_by(
-            '?'
-        )[:2]
+        ).exclude(pk=noticia.pk).order_by('?')[:2]
         
         return context
     
     def post(self, request, *args, **kwargs):
-        """
-        Processa o envio de novos comentários.
-        """
         if not request.user.is_authenticated:
             messages.error(request, 'Você precisa estar logado para comentar.')
             return redirect('login')
@@ -77,78 +67,64 @@ class NoticiaDetailView(DetailView):
             novo_comentario.noticia = noticia
             novo_comentario.autor = request.user
             novo_comentario.save()
-            messages.success(request, 'Comentário adicionado com sucesso!')
+            
+            # Gamificação - marcar comentário feito
+            user_profile = request.user.userprofile
+            level_up = user_profile.marcar_comentario_feito()
+            
+            messages.success(request, 'Comentário adicionado com sucesso! +10 pontos!')
+            
+            if level_up:
+                messages.success(request, f'🎉 Parabéns! Você subiu para o nível {user_profile.nivel}!')
+                
             return redirect('jornal_app:artigo', pk=noticia.pk)
         else:
-            # Se o formulário for inválido, reexibe a página com os erros
             context = self.get_context_data()
             context['comentario_form'] = comentario_form
             return self.render_to_response(context)
 
 class HomeView(TemplateView):
-    """
-    Página inicial do jornal 
-    """
     template_name = 'jornal_app/home.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['destaques'] = Noticia.objects.filter(destaque=True).order_by('-data_publicacao')[:3]
-        
         context['artigos_recentes'] = Noticia.objects.filter(destaque=False).order_by('-data_publicacao')[:3]
-        
         return context
 
-
 class NoticiasPorCategoriaView(ListView):
-    """
-    Lista as notícias filtradas por uma categoria específica.
-    """
     model = Noticia
     template_name = 'jornal_app/noticias_por_categoria.html'
     context_object_name = 'noticias'
     paginate_by = 10 
 
     def get_queryset(self):
-        """
-        Filtra as notícias pela categoria passada na URL.
-        """
         self.categoria = get_object_or_404(Categoria, pk=self.kwargs['pk'])
         return Noticia.objects.filter(categoria=self.categoria).order_by('-data_publicacao')
 
     def get_context_data(self, **kwargs):
-        """
-        Adiciona o objeto 'categoria' ao contexto para ser usado no template.
-        """
         context = super().get_context_data(**kwargs)
         context['categoria'] = self.categoria
+        
+        # Gamificação - marcar categoria visitada
+        if self.request.user.is_authenticated:
+            user_profile = self.request.user.userprofile
+            user_profile.marcar_categoria_visitada(self.categoria.pk)
+        
         return context
-
-# --- VIEWS PARA COMENTÁRIOS ---
 
 @method_decorator(login_required, name='dispatch')
 class comentario_delete(DeleteView):
-    """
-    Exclui um comentário.
-    """
     model = Comentario
     template_name = 'jornal_app/comentario_confirm_delete.html'
     
     def get_success_url(self):
-        """
-        Redireciona para a notícia após excluir o comentário.
-        """
         noticia_id = self.object.noticia.id
         return reverse_lazy('jornal_app:artigo', kwargs={'pk': noticia_id})
     
     def delete(self, request, *args, **kwargs):
-        """
-        Sobrescreve o método delete para verificar permissões e mostrar mensagens.
-        """
         self.object = self.get_object()
         
-        # Verifica se o usuário é o autor do comentário ou staff
         if request.user == self.object.autor or request.user.is_staff:
             noticia_id = self.object.noticia.id
             self.object.delete()
@@ -158,20 +134,12 @@ class comentario_delete(DeleteView):
             messages.error(request, "Você não tem permissão para excluir este comentário.")
             return redirect(self.get_success_url())
 
-# --- VIEWS PARA O EDITOR ---
-
 class CategoriaListView(ListView):
-    """
-    Lista todas as categorias para o editor.
-    """
     model = Categoria
     template_name = 'jornal_app/categoria_list.html'
     context_object_name = 'categorias'
 
 class CategoriaCreateView(CreateView):
-    """
-    Cria uma nova categoria.
-    """
     model = Categoria
     form_class = CategoriaForm
     template_name = 'jornal_app/categoria_form.html'
@@ -182,17 +150,11 @@ class CategoriaCreateView(CreateView):
         return super().form_valid(form)
 
 class CategoriaDeleteView(DeleteView):
-    """
-    Exclui uma categoria.
-    """
     model = Categoria
     template_name = 'jornal_app/categoria_confirm_delete.html'
     success_url = reverse_lazy('jornal_app:categoria_list')
     
     def post(self, request, *args, **kwargs):
-        """
-        Sobrescreve o método post para tratar o ProtectedError.
-        """
         self.object = self.get_object()
         try:
             self.object.delete()
@@ -206,9 +168,6 @@ class CategoriaDeleteView(DeleteView):
             return redirect(self.success_url)
 
 def noticia_search(request):
-    """
-    View function para busca de notícias
-    """
     query = request.GET.get('q', '')
     noticias = Noticia.objects.all()
     
@@ -224,13 +183,8 @@ def noticia_search(request):
     }
     return render(request, 'jornal_app/noticia_search.html', context)
 
-# === FUNÇÕES PARA IMPORTAR NOTÍCIAS DA NEWS DATA API ===
-
 @staff_member_required
 def criar_categorias_api(request):
-    """
-    Cria as categorias que a API realmente suporta
-    """
     categorias_api = [
         'Política', 'Esportes', 'Economia', 'Tecnologia', 
         'Entretenimento', 'Saúde', 'Ciência', 'Geral'
@@ -252,13 +206,9 @@ def criar_categorias_api(request):
 
 @staff_member_required
 def importar_noticias(request):
-    """
-    View para importar notícias da NewsDataAPI - COM FILTRO POR CATEGORIA
-    """
     api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
     api_configurada = bool(api_key and api_key.strip() and api_key != 'sua_chave_api_aqui')
     
-    # Obter categorias disponíveis
     categorias = Categoria.objects.all()
     
     if request.method == 'POST':
@@ -267,16 +217,13 @@ def importar_noticias(request):
             return redirect('jornal_app:importar_noticias')
             
         try:
-            # Obter categoria selecionada (ou importar para todas)
             categoria_id = request.POST.get('categoria')
             
             if categoria_id:
-                # Importar para uma categoria específica
                 categoria_filtro = get_object_or_404(Categoria, pk=categoria_id)
                 quantidade_importada = importar_noticias_por_categoria(categoria_filtro)
                 messages.success(request, f'✅ {quantidade_importada} notícias de {categoria_filtro.nome} importadas!')
             else:
-                # Importar para TODAS as categorias
                 total_importadas = 0
                 for categoria in categorias:
                     quantidade = importar_noticias_por_categoria(categoria)
@@ -298,9 +245,6 @@ def importar_noticias(request):
     return render(request, 'admin/importar_noticias.html', context)
 
 def importar_noticias_por_categoria(categoria):
-    """
-    Importa notícias específicas para uma categoria
-    """
     api_key = getattr(settings, 'NEWSDATA_API_KEY', '')
     
     if not api_key:
@@ -308,7 +252,6 @@ def importar_noticias_por_categoria(categoria):
     
     base_url = "https://newsdata.io/api/1/news"
     
-    # Mapear categoria do sistema para categoria da API
     mapeamento_para_api = {
         'Política': 'politics',
         'Esportes': 'sports', 
@@ -349,45 +292,33 @@ def importar_noticias_por_categoria(categoria):
         return 0
 
 def processar_artigos_para_categoria(articles, categoria):
-    """
-    Processa artigos para uma categoria específica
-    """
     quantidade_importada = 0
     
     for article in articles:
-        # Verificar se a notícia já existe pela URL
         url_fonte = article.get('link', '')
         if Noticia.objects.filter(url_fonte=url_fonte).exists():
             continue
         
-        # Converter data de publicação
         data_publicacao = parse_date(article.get('pubDate', ''))
         
-        # Preparar conteúdo
-        descricao = article.get('description', '') or ''
         conteudo_final = article.get('description', '')
-
-        # 2. Se a 'description' estiver vazIA, tente pegar o 'content'
         if not conteudo_final:
             conteudo_final = article.get('content', '')
-
-        # 3. Se ambos falharem, use o título como último recurso
         if not conteudo_final:
             conteudo_final = article.get('title', 'Artigo sem conteúdo')
         
         if not conteudo_final.strip():
             continue
             
-        # Criar a notícia
         noticia = Noticia(
             titulo=article.get('title', '')[:200],
             conteudo=conteudo_final[:2000],
-            categoria=categoria,  # Usa a categoria específica
+            categoria=categoria,
             url_fonte=url_fonte[:500],
             imagem_url=article.get('image_url', '')[:500],
             autor_fonte=article.get('source_id', 'Fonte Externa')[:100],
             data_publicacao=data_publicacao,
-            destaque=(categoria.nome == 'Política')  # Destaque só para Política
+            destaque=(categoria.nome == 'Política')
         )
         
         noticia.save()
@@ -396,33 +327,7 @@ def processar_artigos_para_categoria(articles, categoria):
     
     return quantidade_importada
 
-def mapear_categoria(categoria_api):
-    """
-    Mapeia a categoria da API para uma categoria do sistema
-    """
-    mapeamento = {
-        'politics': 'Política',
-        'sports': 'Esportes',
-        'business': 'Economia', 
-        'technology': 'Tecnologia',
-        'entertainment': 'Entretenimento',
-        'health': 'Saúde',
-        'science': 'Ciência',
-        'general': 'Geral'
-    }
-    
-    nome_categoria = mapeamento.get(categoria_api, 'Geral')
-    
-    # Buscar ou criar a categoria
-    categoria, created = Categoria.objects.get_or_create(nome=nome_categoria)
-    print(f"🔧 Categoria mapeada: {categoria_api} → {nome_categoria} (ID: {categoria.id})")
-    
-    return categoria
-
 def parse_date(date_string):
-    """
-    Converte a string de data da API para um objeto datetime
-    """
     if not date_string:
         return datetime.now()
     
@@ -447,15 +352,9 @@ def parse_date(date_string):
             pass
         
         return datetime.now()
-    
-# === FUNÇÕES PARA RESET E CONFIGURAÇÃO ===
 
 @staff_member_required
 def reset_total(request):
-    """
-    LIMPA TUDO e começa do zero
-    """
-    # Deletar tudo
     Noticia.objects.all().delete()
     Categoria.objects.all().delete()
     
@@ -464,17 +363,9 @@ def reset_total(request):
 
 @staff_member_required
 def criar_categorias_definitivas(request):
-    """
-    Cria as 7 categorias DEFINITIVAS na ordem correta
-    """
     categorias_definitivas = [
-        'Política',      # ID 1
-        'Esportes',      # ID 2  
-        'Economia',      # ID 3
-        'Tecnologia',    # ID 4
-        'Saúde',         # ID 5
-        'Ciência',       # ID 6
-        'Geral'          # ID 7
+        'Política', 'Esportes', 'Economia', 'Tecnologia', 
+        'Saúde', 'Ciência', 'Geral'
     ]
     
     for nome in categorias_definitivas:
@@ -483,18 +374,11 @@ def criar_categorias_definitivas(request):
     
     messages.success(request, "✅ 7 categorias criadas na ordem DEFINITIVA!")
     
-    # Mostrar os IDs criados
     categorias = Categoria.objects.all().order_by('id')
     for cat in categorias:
         messages.info(request, f"ID {cat.id}: {cat.nome}")
     
     return redirect('jornal_app:importar_noticias')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 
 def register(request):
     if request.method == 'POST':
@@ -515,5 +399,30 @@ def register(request):
 
 @login_required
 def profile(request):
-    return render(request, 'jornal_app/profile.html')
+    try:
+        user_profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        # Se não existir, cria um
+        user_profile = UserProfile.objects.create(usuario=request.user)
+        messages.info(request, "Perfil de gamificação criado! 🎮")
+    
+    context = {
+        'user_profile': user_profile,
+        'stats': user_profile.get_estatisticas(),
+    }
+    
+    return render(request, 'jornal_app/profile.html', context)
 
+class MaisNoticiasCategoriaView(ListView):
+    """
+    Serve os artigos para o scroll infinito NAS CATEGORIAS - 3 em 3
+    """
+    model = Noticia
+    template_name = 'jornal_app/partials/categoria_feed.html'
+    context_object_name = 'noticias'
+    paginate_by = 3
+
+    def get_queryset(self):
+        categoria_id = self.kwargs['pk']
+        categoria = get_object_or_404(Categoria, pk=categoria_id)
+        return Noticia.objects.filter(categoria=categoria).order_by('-data_publicacao')
