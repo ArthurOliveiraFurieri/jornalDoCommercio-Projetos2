@@ -1160,3 +1160,122 @@ body {
     }
 }
 
+/* ================= CORREÇÃO FORÇADA DO HEADER ================= */
+
+/* 1. Garante que o container alinhe os itens lado a lado */
+.header-main .logo-container {
+    display: flex !important;
+    justify-content: space-between !important; /* Esquerda - Meio - Direita */
+    align-items: center !important;
+    width: 100% !important;
+    position: relative !important;
+    padding: 10px 0 !important;
+    gap: 0 !important; /* Remove gaps estranhos */
+}
+
+/* 2. Reseta o botão Home (Esquerda) */
+.header-main .home-icon-link {
+    position: relative !important; /* Mata o absolute antigo */
+    left: auto !important;         /* Remove o 400px */
+    top: auto !important;
+    transform: none !important;
+    display: flex !important;
+    z-index: 100 !important;
+    margin: 0 !important;
+}
+
+/* 3. Centraliza a Logo (Centro Absoluto) */
+.header-main .logo-center {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
+/* 4. Reseta os botões de Ação (Direita) */
+.header-main .header-actions {
+    position: relative !important; /* Mata o absolute antigo */
+    right: auto !important;        /* Remove o 400px */
+    top: auto !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    z-index: 100 !important;
+    margin: 0 !important;
+}
+
+/* 5. Ajuste do botão da lupa para não bugar */
+.header-main .search-toggle-btn {
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+}
+
+/* ================= FIM DA CORREÇÃO ================= */
+
+/* ================= CORREÇÃO: LOGO EM CIMA DO TEXTO ================= */
+
+/* 1. O Container Central (Torre) */
+.header-main .logo-center {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    
+    /* AQUI ESTÁ A MÁGICA: */
+    display: flex !important;
+    flex-direction: column !important; /* Empilha: Imagem em cima, Texto embaixo */
+    align-items: center !important;    /* Centraliza os dois */
+    justify-content: center !important;
+    
+    width: auto !important;
+    margin: 0 !important;
+    z-index: 50 !important; /* Garante que fique acima de outras coisas se necessário */
+}
+
+/* 2. Controlar o tamanho da Imagem (Logo) */
+.header-main .site-logo {
+    width: 60px !important;  /* Ajuste este tamanho conforme sua imagem */
+    height: auto !important;
+    margin-bottom: 5px !important; /* Espaço entre a imagem e o texto */
+    display: block !important;
+}
+
+/* 3. Ajuste do Texto */
+.header-main .logo {
+    font-size: 2.5rem !important; /* Ajuste o tamanho da fonte se precisar */
+    line-height: 1 !important;
+    margin: 0 !important;
+    white-space: nowrap !important; /* Impede que o texto quebre linha */
+    text-align: center !important;
+}
+
+/* 4. Aumentar a altura do cabeçalho */
+/* Como empilhamos coisas, o cabeçalho precisa ser mais alto para caber tudo */
+.header-main {
+    padding: 20px 0 !important; /* Dá mais espaço em cima e embaixo */
+    min-height: 120px !important; /* Garante altura suficiente para logo + texto */
+}
+
+/* ================= RESPONSIVIDADE (CELULAR) ================= */
+@media (max-width: 768px) {
+    .header-main .logo-center {
+        position: relative !important; /* No celular, deixa de ser absoluto */
+        left: auto !important;
+        transform: none !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .header-main .logo {
+        font-size: 1.8rem !important; /* Diminui a fonte no celular */
+    }
+    
+    .header-main .site-logo {
+        width: 45px !important; /* Diminui a imagem no celular */
+    }
+}
