@@ -1,0 +1,73 @@
+﻿{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>📰 Importar Notícias Reais da API</h1>
+
+<div class="module">
+    {% if api_configurada %}
+    <div class="alert alert-success">
+        ✅ API Configurada: {{ NEWSDATA_API_KEY|truncatechars:20 }}
+    </div>
+    
+    <div class="form-row">
+        <h3>Importar para categoria específica:</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="categoria">Selecionar categoria:</label>
+                <select name="categoria" id="categoria" class="form-control">
+                    <option value="">-- Todas as categorias --</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.pk }}">{{ cat.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="button" name="acao" value="importar">🚀 Importar Notícias Reais</button>
+        </form>
+    </div>
+    
+    <div class="form-row" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <h3>Importação Rápida (Todas as Categorias):</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="categoria" value="">
+            <button type="submit" class="button" style="background: #28a745;">🎯 Importar para TODAS as Categorias</button>
+            <p class="help">Buscará notícias reais para: Política, Esportes, Economia, Tecnologia, Cultura e Geral</p>
+        </form>
+    </div>
+    
+    {% else %}
+    <div class="alert alert-error">
+        ❌ API não configurada. Siga estes passos:
+        <ol>
+            <li>Acesse: <a href="https://newsdata.io/" target="_blank">https://newsdata.io/</a></li>
+            <li>Cadastre-se gratuitamente</li>
+            <li>Obtenha sua API Key no dashboard</li>
+            <li>Adicione no settings.py: <code>NEWSDATA_API_KEY = 'sua_chave_aqui'</code></li>
+        </ol>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Estatísticas -->
+<div class="module" style="margin-top: 20px;">
+    <h2>📊 Estatísticas Atuais</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Categoria</th>
+                <th>Notícias</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categorias %}
+            <tr>
+                <td>{{ cat.nome }}</td>
+                <td>{{ cat.noticia_set.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

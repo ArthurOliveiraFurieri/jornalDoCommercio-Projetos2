@@ -1,0 +1,50 @@
+{% extends "jornal_app/base.html" %}
+{% load static %}
+
+{% block title %}Busca: {{ query }} - Jornal do Commercio{% endblock %}
+
+{% block main_content %}
+<div class="search-results-content">
+    <div class="search-header">
+        <h1 class="search-title">Resultados da Busca</h1>
+        {% if query %}
+            <p class="search-query">Buscando por: "{{ query }}"</p>
+        {% endif %}
+    </div>
+
+    <div class="search-results">
+        {% if noticias %}
+            <p class="results-count">{{ noticias|length }} resultado(s) encontrado(s)</p>
+            
+            <div class="news-grid"> {% for noticia in noticias %}
+                
+                <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+                    
+                    <article class="news-card">
+                        
+                        {% if noticia.imagem_url %}
+                        <div class="news-image-container">
+                            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+                        </div>
+                        {% endif %}
+
+                        <h2 class="news-title">{{ noticia.titulo }}</h2>
+                        <p class="news-date">{{ noticia.data_publicacao|date:"d/m/Y" }}</p>
+                        <p class="news-excerpt">{{ noticia.conteudo|truncatewords:30|linebreaksbr }}</p>
+                        
+                        </article>
+                    
+                </a> {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                {% if query %}
+                    <p>Nenhuma notícia encontrada para "{{ query }}"</p>
+                {% else %}
+                    <p>Digite um termo para buscar notícias</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock main_content %}

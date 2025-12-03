@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Jornal do Comércio{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Seu header com logo, navegação, etc. -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <!-- Seu conteúdo do header -->
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <!-- Seu footer -->
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

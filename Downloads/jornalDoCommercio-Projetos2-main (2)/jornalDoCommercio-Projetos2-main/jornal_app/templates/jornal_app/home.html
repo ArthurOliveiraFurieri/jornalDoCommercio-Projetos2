@@ -1,0 +1,121 @@
+{% extends "jornal_app/base.html" %}
+{% load static %}
+
+{% block main_content %}
+<div class="home-content">
+    <div class="container">
+
+        {% with destaque_principal=destaques.0 %}
+            {% if destaque_principal %}
+            <a href="{% url 'jornal_app:artigo' pk=destaque_principal.pk %}" class="card-link-wrapper">
+                <article class="main-feature">
+                    {% if destaque_principal.imagem_url %}
+                    <div class="feature-image-container">
+                        <img src="{{ destaque_principal.imagem_url }}" alt="{{ destaque_principal.titulo }}" class="feature-image">
+                    </div>
+                    {% endif %}
+                    <h1 class="feature-title">
+                        {{ destaque_principal.titulo }}
+                    </h1>
+                    <p class="feature-description">
+                        {{ destaque_principal.conteudo|truncatewords:30|linebreaksbr }}
+                    </p>
+                </article>
+            </a>
+            {% else %}
+            <article class="main-feature">
+                <h1 class="feature-title">Bem-vindo ao Jornal do Commercio</h1>
+                <p class="feature-description">
+                    Nossos editores estão preparando as notícias. Volte em breve!
+                </p>
+            </article>
+            {% endif %}
+        {% endwith %}
+
+
+        <div class="news-row">
+            {% for noticia in artigos_recentes %}
+            <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+                <article class="news-card">
+                    {% if noticia.imagem_url %}
+                    <div class="news-image-container">
+                        <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+                    </div>
+                    {% endif %}
+                    <h2 class="news-title">
+                        {{ noticia.titulo }}
+                    </h2>
+                    <p class="news-excerpt">
+                        {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
+                    </p>
+                </article>
+            </a> 
+            {% endfor %}
+        </div> <div id="infinite-scroll-feed">
+            </div>
+
+        <div id="scroll-trigger" style="height: 50px;">
+            </div>
+
+        <div class="horizontal-sidebar">
+            <div class="sidebar-inline">
+                <div class="inline-item">
+                    <span class="inline-label">Previsão diária</span>
+                    <span class="inline-temp">{{ informacoes_dia.temperatura_max }} {{ informacoes_dia.temperatura_min }}</span>
+                </div>
+                <div class="inline-item">
+                    <span class="inline-label">Cotação do dia</span>
+                    <span class="inline-currency">Dólar {{ informacoes_dia.dolar }} Euro {{ informacoes_dia.euro }}</span>
+                </div>
+                <div class="inline-item">
+                    <span class="inline-label">Previsão Marés Recife</span>
+                    <span class="inline-tide">3.37m 11:40 17:03 22:05</span>
+                </div>
+                <div class="inline-item">
+                    <span class="inline-label">MEGA SENA N 2026</span>
+                    <span class="inline-mega">00 00 00 00 00 00</span>
+                </div>
+            </div>
+        </div> </div> </div> <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const trigger = document.getElementById('scroll-trigger');
+        const feedContainer = document.getElementById('infinite-scroll-feed');
+        
+        let page = 1;
+        let isLoading = false; 
+
+        const loadMoreNews = async () => {
+            if (isLoading) return; 
+            isLoading = true;
+            
+            try {
+                const response = await fetch(`/feed/?page=${page}`);
+                const html = await response.text();
+
+                if (html.trim().length > 0) {
+                    feedContainer.insertAdjacentHTML('beforeend', html);
+                    page++; 
+                    isLoading = false;
+                } else {
+                    trigger.innerHTML = "<p style='text-align:center; color:#888;'>Fim das notícias.</p>";
+                    observer.unobserve(trigger);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar mais notícias:', error);
+                isLoading = false;
+            }
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadMoreNews();
+            }
+        }, {
+            rootMargin: '100px', 
+        });
+
+        observer.observe(trigger);
+    });
+</script>
+
+{% endblock main_content %}

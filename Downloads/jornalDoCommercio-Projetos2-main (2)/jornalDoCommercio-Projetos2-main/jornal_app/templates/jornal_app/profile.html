@@ -1,0 +1,76 @@
+{% extends "jornal_app/base.html" %}
+{% load static %}
+
+{% block title %}Meu Perfil - Jornal do Commercio{% endblock %}
+
+{% block main_content %}
+<div class="profile-content">
+    <div class="container">
+        <div class="profile-header">
+            <h1 class="profile-title">Meu Perfil</h1>
+            <p class="profile-subtitle">Bem-vindo, {{ user.username }}!</p>
+        </div>
+
+        <!-- Card de Progresso -->
+        <div class="progress-card">
+            <div class="level-section">
+                <div class="level-badge">Nível {{ user_profile.nivel }}</div>
+                <div class="points">⭐ {{ user_profile.pontos }} pontos</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ stats.progresso_porcentagem }}%"></div>
+            </div>
+            
+            <div class="progress-info">
+                <p>{{ stats.pontos_proximo_nivel }} pontos para o próximo nível</p>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📰</div>
+                <div class="stat-number">{{ stats.noticias_lidas }}</div>
+                <div class="stat-label">Notícias Lidas</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-number">{{ stats.comentarios_feitos }}</div>
+                <div class="stat-label">Comentários</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🧭</div>
+                <div class="stat-number">{{ stats.categorias_exploradas }}/{{ stats.total_categorias }}</div>
+                <div class="stat-label">Categorias</div>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        {% if stats.badges %}
+        <div class="badges-section">
+            <h3>🏆 Suas Conquistas</h3>
+            <div class="badges-grid">
+                {% for badge in stats.badges %}
+                <div class="badge-item">
+                    <span class="badge-icon">{{ badge|slice:":2" }}</span>
+                    <span class="badge-text">{{ badge|slice:"3:" }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="no-badges">
+            <p>📋 Complete atividades para ganhar suas primeiras conquistas!</p>
+            <ul>
+                <li>📖 Leia notícias para ganhar pontos</li>
+                <li>💬 Comente nas notícias</li>
+                <li>🧭 Explore diferentes categorias</li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

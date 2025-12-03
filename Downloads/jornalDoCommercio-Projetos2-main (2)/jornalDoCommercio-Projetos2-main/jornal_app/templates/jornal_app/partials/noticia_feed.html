@@ -1,0 +1,42 @@
+
+<hr style="border: 1px solid #eee; margin: 40px 0;">
+{% with destaque_principal=noticias.0 %}
+    {% if destaque_principal %}
+    <a href="{% url 'jornal_app:artigo' pk=destaque_principal.pk %}" class="card-link-wrapper">
+        <article class="main-feature">
+            {% if destaque_principal.imagem_url %}
+            <div class="feature-image-container">
+                <img src="{{ destaque_principal.imagem_url }}" alt="{{ destaque_principal.titulo }}" class="feature-image">
+            </div>
+            {% endif %}
+            <h1 class="feature-title">
+                {{ destaque_principal.titulo }}
+            </h1>
+            <p class="feature-description">
+                {{ destaque_principal.conteudo|truncatewords:30|linebreaksbr }}
+            </p>
+        </article>
+    </a>
+    {% endif %}
+{% endwith %}
+
+
+<div class="news-row">
+    {% for noticia in noticias|slice:"1:4" %}
+    <a href="{% url 'jornal_app:artigo' pk=noticia.pk %}" class="card-link-wrapper">
+        <article class="news-card">
+            {% if noticia.imagem_url %}
+            <div class="news-image-container">
+                <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="news-image">
+            </div>
+            {% endif %}
+            <h2 class="news-title">
+                {{ noticia.titulo }}
+            </h2>
+            <p class="news-excerpt">
+                {{ noticia.conteudo|truncatewords:25|linebreaksbr }}
+            </p>
+        </article>
+    </a>
+    {% endfor %}
+</div>

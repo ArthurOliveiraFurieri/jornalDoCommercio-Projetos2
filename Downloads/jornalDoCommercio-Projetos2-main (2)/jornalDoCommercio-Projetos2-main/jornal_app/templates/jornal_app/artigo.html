@@ -1,0 +1,124 @@
+{% extends "jornal_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ noticia.titulo }} - Jornal do Comércio{% endblock %}
+
+{% block main_content %}
+    <article class="article-full">
+        <h1 class="feature-title">{{ noticia.titulo }}</h1>
+
+        {% if noticia.imagem_url %}
+        <div class="feature-image-container">
+            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="feature-image">
+        </div>
+        {% endif %}
+
+        <p class="article-meta">
+            <strong>Categoria:</strong> 
+            <a href="{% url 'jornal_app:noticias_por_categoria' pk=noticia.categoria.pk %}" class="read-more-link">
+                {{ noticia.categoria.nome }}
+            </a>
+            <br>
+            <strong>Publicado em:</strong> {{ noticia.data_publicacao|date:"d/m/Y \à\s H:i" }}
+        </p>
+        
+        <div class="article-body">
+            {{ noticia.conteudo|linebreaks }}
+        </div>
+    </article>
+
+    <section class="related-news-section">
+        <h2>Notícias Relacionadas</h2>
+
+        <div class="news-row">
+            {% for noticia_similar in noticias_similares %}
+                <a href="{% url 'jornal_app:artigo' pk=noticia_similar.pk %}" class="card-link-wrapper">
+                    <article class="news-card">
+                        {% if noticia_similar.imagem_url %}
+                        <div class="news-image-container">
+                            <img src="{{ noticia_similar.imagem_url }}" alt="{{ noticia_similar.titulo }}" class="news-image">
+                        </div>
+                        {% endif %}
+                        <h2 class="news-title">{{ noticia_similar.titulo }}</h2>
+                        <p class="news-excerpt">
+                            {{ noticia_similar.conteudo|truncatewords:20|linebreaksbr }}
+                        </p>
+                    </article>
+                </a>
+            {% empty %}
+                <p class="no-related-news">Nenhuma notícia similar encontrada.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- SEÇÃO DE COMENTÁRIOS ATUALIZADA -->
+    <section class="comments-section">
+        <h3 class="comments-header">Comentários</h3>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if user.is_authenticated %}
+        <div class="comment-form">
+            <h4 class="form-title">Deixe seu comentário</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ comentario_form.texto }}
+                    {% if comentario_form.texto.errors %}
+                    <div class="error-message">
+                        {{ comentario_form.texto.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Comentário</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="comment-login-prompt">
+            <p><a href="{% url 'jornal_app:login' %}?next={{ request.path }}" class="read-more-link">Faça login</a> para deixar um comentário.</p>
+        </div>
+        {% endif %}
+
+        <div class="comments-list">
+            <div class="comment-count">{{ comentarios.count }} Comentário{{ comentarios.count|pluralize }}</div>
+            
+            {% for comentario in comentarios %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">
+                        {{ comentario.autor.get_full_name|default:comentario.autor.username }}
+                    </span>
+                    <span class="comment-date">
+                        {{ comentario.data_criacao|date:"d/m/Y \à\s H:i" }}
+                    </span>
+                </div>
+                
+                <div class="comment-text">
+                    {{ comentario.texto|linebreaks }}
+                </div>
+                
+                {% if user == comentario.autor or user.is_staff %}
+                <div class="comment-actions">
+                    <form method="post" action="{% url 'jornal_app:comentario_delete' comentario.id %}">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                onclick="return confirm('Tem certeza que deseja excluir este comentário?')">
+                            Excluir
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="no-comments">
+                <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+{% endblock main_content %}
