@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jornalDoCommercio
+    env: python
+    region: ohio
+    plan: free
+    repo: https://github.com/ArthurOliveiraFurieri/jornalDoCommercio-Projetos2.git
+    branch: master
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn jornalDoCommercio.wsgi:application --log-file -
+
+databases:
+  - name: postgres
+    databaseName: jornal_db
+    user: jornal_user
+    plan: free
