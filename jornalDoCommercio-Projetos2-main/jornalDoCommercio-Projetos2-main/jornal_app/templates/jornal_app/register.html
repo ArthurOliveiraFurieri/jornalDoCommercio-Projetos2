@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - Jornal do Comércio{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px; color: #333;">Cadastro</h2>
+
+<form method="post" style="max-width: 400px; margin: 0 auto;">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% for field in form %}
+    <div class="form-group" style="margin-bottom: 20px;">
+        <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+            {{ field.label }}:
+        </label>
+        {{ field }}
+        {% if field.errors %}
+        <div style="color: #c33; font-size: 14px; margin-top: 8px;">
+            {% for error in field.errors %}
+                <p style="margin: 4px 0;">• {{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if field.help_text %}
+        <small style="display: block; color: #666; margin-top: 5px;">
+            {{ field.help_text|safe }}
+        </small>
+        {% endif %}
+    </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;">
+        Cadastrar
+    </button>
+</form>
+
+<div class="links" style="text-align: center; margin-top: 20px;">
+    <p>Já tem uma conta? <a href="{% url 'jornal_app:login' %}">Faça login</a></p>
+</div>
+{% endblock %}
