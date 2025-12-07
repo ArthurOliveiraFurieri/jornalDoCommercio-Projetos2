@@ -407,23 +407,64 @@ def register(request):
     else:
         form = RegistroForm()
     
-    try:
-        return render(request, 'jornal_app/register.html', {'form': form})
-    except Exception as e:
-        messages.error(request, f'Erro ao renderizar página: {str(e)}')
-        # Renderizar um template minimalista em caso de erro
-        from django.http import HttpResponse
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head><title>Cadastro</title></head>
-        <body>
-            <h1>Cadastro</h1>
-            <p style="color: red;">Erro: {str(e)}</p>
-        </body>
-        </html>
-        """
-        return HttpResponse(html, status=500)
+    # Renderizar template simples sem dependências
+    from django.http import HttpResponse
+    html = """
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cadastro - Jornal do Comércio</title>
+        <style>
+            body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+            .container { max-width: 500px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h2 { text-align: center; color: #333; margin-bottom: 30px; }
+            .form-group { margin-bottom: 20px; }
+            label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+            input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+            input:focus { outline: none; border-color: #007bff; }
+            .btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+            .btn:hover { background: #0056b3; }
+            .links { text-align: center; margin-top: 20px; }
+            .links a { color: #007bff; text-decoration: none; }
+            .error { color: #c33; font-size: 13px; margin-top: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Cadastro</h2>
+            <form method="post">
+    """
+    
+    # CSRF token
+    from django.middleware.csrf import get_token
+    csrf_token = get_token(request)
+    html += f'<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">\n'
+    
+    # Renderizar cada campo do formulário
+    for field in form:
+        html += f'<div class="form-group">\n'
+        html += f'<label for="{field.id_for_label}">{field.label}:</label>\n'
+        html += str(field) + '\n'
+        if field.errors:
+            for error in field.errors:
+                html += f'<div class="error">• {error}</div>\n'
+        html += f'</div>\n'
+    
+    html += """
+                <button type="submit" class="btn">Cadastrar</button>
+            </form>
+            <div class="links">
+                <p>Já tem uma conta? <a href="/accounts/login/">Faça login aqui</a></p>
+                <p><a href="/">Voltar para home</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HttpResponse(html)
 
 @login_required
 def profile(request):
