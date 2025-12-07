@@ -18,13 +18,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-key-in-product
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# ALLOWED_HOSTS - HARDCODED para garantir funcionamento
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1', 
-    'jornaldocommercio.pythonanywhere.com',
-    '*.pythonanywhere.com'
-]
+# ALLOWED_HOSTS - COMPLETAMENTE HARDCODED 
+ALLOWED_HOSTS = ['*']  # Permitir todos os hosts (depois restringir se necessário)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
