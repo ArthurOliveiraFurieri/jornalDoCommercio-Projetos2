@@ -1,60 +1,79 @@
-{% extends "jornal_app/base.html" %}
-
-{% block title %}Cadastro - Jornal do Comércio{% endblock %}
-
-{% block content %}
-<div style="max-width: 500px; margin: 50px auto; padding: 20px;">
-    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Cadastro</h2>
-
-    {% if messages %}
-    <div style="margin-bottom: 20px;">
-        {% for message in messages %}
-        <div style="background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; border: 1px solid {% if message.tags == 'error' %}#f5c6cb{% else %}#c3e6cb{% endif %}; color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %}; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <form method="post" style="background-color: #f9f9f9; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        {% csrf_token %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Jornal do Comércio</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .register-container { max-width: 500px; margin: 50px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #007bff; }
+        .errors { color: #c33; font-size: 13px; margin-top: 5px; }
+        .help-text { color: #666; font-size: 12px; margin-top: 5px; }
+        .submit-btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .submit-btn:hover { background: #0056b3; }
+        .links { text-align: center; margin-top: 20px; }
+        .links a { color: #007bff; text-decoration: none; }
+        .message { padding: 12px; margin-bottom: 20px; border-radius: 4px; }
+        .error-msg { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Cadastro</h2>
         
-        {% if form.non_field_errors %}
-        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
-            {% for error in form.non_field_errors %}
-                <p style="margin: 5px 0;">{{ error }}</p>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
             {% endfor %}
-        </div>
         {% endif %}
-        
-        {% for field in form %}
-        <div style="margin-bottom: 20px;">
-            <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
-                {{ field.label }}:
-            </label>
-            {{ field }}
-            {% if field.errors %}
-            <div style="color: #c33; font-size: 14px; margin-top: 8px;">
-                {% for error in field.errors %}
-                    <p style="margin: 4px 0;">• {{ error }}</p>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% if field.help_text %}
-            <small style="display: block; color: #666; margin-top: 5px; font-size: 12px;">
-                {{ field.help_text|safe }}
-            </small>
-            {% endif %}
-        </div>
-        {% endfor %}
-        
-        <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Cadastrar
-        </button>
-    </form>
 
-    <div style="text-align: center; margin-top: 20px;">
-        <p style="color: #666;">Já tem uma conta? <a href="{% url 'jornal_app:login' %}" style="color: #007bff; text-decoration: none;">Faça login aqui</a></p>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="errors">
+                            {% for error in field.errors %}
+                                <p>• {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <div class="help-text">
+                            {{ field.help_text|safe }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="submit-btn">Cadastrar</button>
+        </form>
+
+        <div class="links">
+            <p>Já tem uma conta? <a href="{% url 'jornal_app:login' %}">Faça login aqui</a></p>
+            <p><a href="{% url 'jornal_app:home' %}">Voltar para home</a></p>
+        </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>
