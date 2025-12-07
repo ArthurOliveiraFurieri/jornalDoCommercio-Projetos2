@@ -380,6 +380,7 @@ def criar_categorias_definitivas(request):
     return redirect('jornal_app:importar_noticias')
 
 def register(request):
+    # VERSÃO: HTTPRESPONSE_FINAL_20251207
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
