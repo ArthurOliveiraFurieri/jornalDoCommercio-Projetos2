@@ -1,0 +1,9 @@
+jornalDoCommercio-Projetos2-main/
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+build/
