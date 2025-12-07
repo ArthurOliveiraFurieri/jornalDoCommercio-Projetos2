@@ -391,7 +391,7 @@ def register(request):
             user = authenticate(username=username, password=form.cleaned_data['password1'])
             login(request, user)
             
-            return redirect('home') 
+            return redirect('jornal_app:home') 
     else:
         form = UserCreationForm()
     
