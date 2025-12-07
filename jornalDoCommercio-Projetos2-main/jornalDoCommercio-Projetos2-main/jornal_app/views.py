@@ -383,20 +383,27 @@ def register(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            messages.success(request, f'Conta criada com sucesso para {username}!')
-            
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('jornal_app:home')
+            try:
+                user = form.save()
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password1')
+                
+                # Garante que o UserProfile existe
+                UserProfile.objects.get_or_create(usuario=user)
+                
+                messages.success(request, f'Conta criada com sucesso para {username}!')
+                
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('jornal_app:home')
+            except Exception as e:
+                messages.error(request, f'Erro ao criar conta: {str(e)}')
         else:
             # Mostra os erros do formulário
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f'{field}: {error}')
+                    messages.error(request, f'{error}')
     else:
         form = RegistroForm()
     

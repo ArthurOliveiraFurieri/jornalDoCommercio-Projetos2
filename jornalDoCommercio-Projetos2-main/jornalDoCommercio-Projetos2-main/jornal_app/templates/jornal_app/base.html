@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Jornal do Commercio - Informação com credibilidade{% endblock %}</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <header class="header">
+        <div class="header-main">
+            <div class="container">
+                <div class="logo-section">
+                    <div class="logo-container">
+                        <!-- Botão Home à ESQUERDA -->
+                        <a href="{% url 'jornal_app:home' %}" class="home-icon-link" title="Voltar à página inicial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </a>
+
+                        <!-- Logo no CENTRO -->
+                        <div class="logo-center">
+                            <img src="{% static 'images/logo.png' %}" alt="Jornal do Commercio" class="site-logo">
+                            <h1 class="logo">Jornal do Commercio</h1>
+                        </div>
+
+                        <!-- Ações à DIREITA -->
+                        <div class="header-actions">
+                            <!-- Botão de Perfil -->
+                            <div class="profile-menu">
+                                {% if user.is_authenticated %}
+                                <div class="user-menu">
+                                    <button class="profile-btn">
+                                        <span class="profile-icon">👤</span>
+                                        <span class="username">{{ user.username|truncatechars:10 }}</span>
+                                        <span class="points-badge">⭐ {{ user.userprofile.pontos }}</span>
+                                    </button>
+                                    <div class="profile-dropdown">
+                                        <a href="{% url 'jornal_app:profile' %}" class="dropdown-item">
+                                            <span>📊</span> Meu Perfil
+                                        </a>
+                                        <form method="post" action="{% url 'jornal_app:logout' %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; padding: 12px 16px; cursor: pointer;">
+                                                <span>🚪</span> Sair
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="auth-links">
+                                    <a href="{% url 'jornal_app:login' %}" class="login-btn">Entrar</a>
+                                    <a href="{% url 'jornal_app:register' %}" class="register-btn">Cadastrar</a>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Botão Busca -->
+                            <button id="search-toggle-btn" class="search-toggle-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-top">
+            <div class="container">
+                <nav class="top-links">
+                    <a href="#sobre" class="top-link">Sobre nós</a>
+                    <a href="#newsletter" class="top-link">Newsletter</a>
+                    <a href="#suporte" class="top-link">Suporte</a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="header-divider">
+            <div class="container">
+                <div class="divider-line"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="header-bottom">
+        <div class="container">
+            <nav class="main-nav">
+                {% for categoria in categorias %}
+                    <a href="{% url 'jornal_app:noticias_por_categoria' pk=categoria.pk %}" class="nav-item">
+                        {{ categoria.nome|upper }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </div>
+
+    <div id="search-section" class="search-section">
+        <form class="search-container" action="{% url 'jornal_app:noticia_search' %}" method="GET">
+            <input type="text" class="search-input" placeholder="Buscar notícias, artigos, temas..." name="q" autofocus>
+            <button type="submit" class="search-button">Buscar</button>
+        </form>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            {% block main_content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Jornal do Commercio</h3>
+                    <p>Informação com credibilidade</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pega os elementos
+        const searchToggleBtn = document.getElementById('search-toggle-btn');
+        const searchSection = document.getElementById('search-section');
+
+        if (searchToggleBtn && searchSection) {
+            
+            // 2. Ouve o clique no ícone
+            searchToggleBtn.addEventListener('click', function() {
+                
+                searchSection.classList.toggle('active');
+
+                if (searchSection.classList.contains('active')) {
+                    searchSection.querySelector('.search-input').focus();
+                }
+            });
+        }
+
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function(event) {
+            const profileMenu = document.querySelector('.user-menu');
+            if (profileMenu && !profileMenu.contains(event.target)) {
+                const dropdown = profileMenu.querySelector('.profile-dropdown');
+                if (dropdown) dropdown.style.display = 'none';
+            }
+        });
+
+        // Abrir/fechar dropdown do perfil
+        const profileBtn = document.querySelector('.profile-btn');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const dropdown = this.closest('.user-menu').querySelector('.profile-dropdown');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+        }
+    });
+    </script>
+</body>
+</html>
