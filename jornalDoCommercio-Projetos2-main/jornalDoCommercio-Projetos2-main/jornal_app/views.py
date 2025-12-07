@@ -407,7 +407,23 @@ def register(request):
     else:
         form = RegistroForm()
     
-    return render(request, 'jornal_app/register.html', {'form': form})
+    try:
+        return render(request, 'jornal_app/register.html', {'form': form})
+    except Exception as e:
+        messages.error(request, f'Erro ao renderizar página: {str(e)}')
+        # Renderizar um template minimalista em caso de erro
+        from django.http import HttpResponse
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head><title>Cadastro</title></head>
+        <body>
+            <h1>Cadastro</h1>
+            <p style="color: red;">Erro: {str(e)}</p>
+        </body>
+        </html>
+        """
+        return HttpResponse(html, status=500)
 
 @login_required
 def profile(request):
