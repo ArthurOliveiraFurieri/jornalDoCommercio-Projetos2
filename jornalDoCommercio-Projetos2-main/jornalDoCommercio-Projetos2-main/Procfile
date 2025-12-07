@@ -1,1 +1,1 @@
-web: gunicorn jornalDoCommercio.wsgi --log-file -
+web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn jornalDoCommercio.wsgi --log-file -
