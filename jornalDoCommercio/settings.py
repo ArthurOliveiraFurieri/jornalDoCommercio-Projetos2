@@ -152,4 +152,8 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'https://jornaldocommercio-projetos2-production.up.railway.app',
+    'https://*.railway.app',
+]
