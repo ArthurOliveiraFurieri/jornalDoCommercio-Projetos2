@@ -18,8 +18,22 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-key-in-product
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# ALLOWED_HOSTS - COMPLETAMENTE HARDCODED 
-ALLOWED_HOSTS = ['*']  # Permitir todos os hosts (depois restringir se necessário)
+# ALLOWED_HOSTS - Configuração para Railway
+# Railway passa o host via X-Forwarded-Host header
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'jornaldocommercio-projetos2-production.up.railway.app',
+    '.railway.app',  # Aceita todos os subdomínios do Railway
+]
+
+# Adiciona hosts do ambiente se disponível
+if os.getenv('RAILWAY_PUBLIC_DOMAIN'):
+    ALLOWED_HOSTS.append(os.getenv('RAILWAY_PUBLIC_DOMAIN'))
+
+# Em desenvolvimento, permite todos
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
