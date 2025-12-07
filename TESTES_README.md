@@ -108,25 +108,6 @@ Ran 20 tests in 45.234s
 
 OK
 ```
-
-## 🐛 Troubleshooting
-
-### Erro: "chromedriver not found"
-**Solução:** Instale o ChromeDriver e adicione ao PATH do sistema.
-
-### Erro: "Chrome version mismatch"
-**Solução:** Atualize o Chrome e o ChromeDriver para versões compatíveis.
-
-### Erro: TimeoutException
-**Solução:** Aumentar o `implicitly_wait` ou verificar se elemento existe na página.
-
-### Testes muito lentos
-**Solução:** Os testes E2E são naturalmente mais lentos. Para acelerar:
-```python
-# Reduzir time.sleep() no código de testes
-# Usar headless mode (já configurado por padrão)
-```
-
 ## 🔒 Modo Headless
 
 Os testes rodam em **modo headless** por padrão (sem abrir janela do navegador). Para ver o navegador durante os testes:
@@ -135,53 +116,6 @@ Os testes rodam em **modo headless** por padrão (sem abrir janela do navegador)
 # Em tests.py, comentar estas linhas:
 # options.add_argument('--headless')
 # options.add_argument('--no-sandbox')
-```
-
-## 📈 Cobertura de Código
-
-Para verificar cobertura de código:
-
-```bash
-pip install coverage
-coverage run --source='.' manage.py test jornal_app.tests
-coverage report
-coverage html
-```
-
-Abra `htmlcov/index.html` no navegador para ver relatório detalhado.
-
-## 🎓 Boas Práticas
-
-1. **Execute os testes antes de cada commit**
-2. **Mantenha os testes atualizados** conforme adiciona features
-3. **Use dados de teste realistas** mas não sensíveis
-4. **Limpe o banco de dados** entre testes (Django faz isso automaticamente)
-5. **Documente novos cenários** de teste adicionados
-
-## 📝 Adicionando Novos Testes
-
-```python
-def test_e2e_11_novo_cenario(self):
-    """E2E: Descrição do cenário"""
-    print("\n🧪 Teste E2E 11: Nome do teste")
-    
-    # 1. Setup
-    self.selenium.get(f'{self.live_server_url}/caminho/')
-    time.sleep(2)
-    
-    try:
-        # 2. Ação
-        elemento = self.selenium.find_element(By.NAME, 'campo')
-        elemento.send_keys('valor')
-        elemento.submit()
-        time.sleep(2)
-        
-        # 3. Verificação
-        body = self.selenium.find_element(By.TAG_NAME, 'body').text
-        self.assertIn("texto esperado", body)
-        print("✅ Teste passou")
-    except Exception as e:
-        print(f"⚠️ Erro: {str(e)}")
 ```
 
 ## 🚀 CI/CD
@@ -206,9 +140,3 @@ jobs:
       - run: sudo apt-get install -y chromium-chromedriver
       - run: python manage.py test
 ```
-
-## 📞 Suporte
-
-Em caso de dúvidas ou problemas, consulte:
-- Documentação Django Testing: https://docs.djangoproject.com/en/5.2/topics/testing/
-- Selenium Docs: https://www.selenium.dev/documentation/
