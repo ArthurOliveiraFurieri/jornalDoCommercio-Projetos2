@@ -41,3 +41,7 @@ Portal digital moderno para o Jornal do Commercio, oferecendo:
 - **HTML5**, CSS3, JavaScript
 - **Bootstrap 5** para interface responsiva
 - **Templates** Django
+
+### Link para o deploy
+https://jornaldocommercio-projetos2-production.up.railway.app/
+
