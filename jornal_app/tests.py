@@ -786,8 +786,8 @@ class JornalProductionE2ETests(TestCase):
         print(f"   Senha: {'*' * len(random_password)}")
         
         print("\n1️⃣  Navegando para página de cadastro...")
-        self.selenium.get(f"{self.PRODUCTION_URL}/cadastrar/")
-        time.sleep(2)
+        self.selenium.get(f"{self.PRODUCTION_URL}/accounts/register/")
+        time.sleep(3)
         
         try:
             print("2️⃣  Preenchendo formulário de cadastro...")
@@ -861,8 +861,8 @@ class JornalProductionE2ETests(TestCase):
             random_password = 'Test@' + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             random_email = random_username + '@teste.com'
             
-            self.selenium.get(f"{self.PRODUCTION_URL}/cadastrar/")
-            time.sleep(2)
+            self.selenium.get(f"{self.PRODUCTION_URL}/accounts/register/")
+            time.sleep(3)
             
             self.selenium.find_element(By.ID, "id_username").send_keys(random_username)
             self.selenium.find_element(By.ID, "id_email").send_keys(random_email)
@@ -1017,8 +1017,8 @@ class JornalProductionE2ETests(TestCase):
             random_password = 'Test@' + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             random_email = random_username + '@teste.com'
             
-            self.selenium.get(f"{self.PRODUCTION_URL}/cadastrar/")
-            time.sleep(2)
+            self.selenium.get(f"{self.PRODUCTION_URL}/accounts/register/")
+            time.sleep(3)
             
             self.selenium.find_element(By.ID, "id_username").send_keys(random_username)
             self.selenium.find_element(By.ID, "id_email").send_keys(random_email)
