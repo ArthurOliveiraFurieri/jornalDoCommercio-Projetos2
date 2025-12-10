@@ -25,7 +25,7 @@ class NoticiaAdmin(admin.ModelAdmin):
             'fields': ('url_fonte', 'imagem_url', 'autor_fonte'),
             'classes': ('collapse',)
         }),
-    ),
+    )
     
     actions = ['marcar_como_destaque', 'remover_destaque']
     
