@@ -1082,7 +1082,7 @@ class JornalProductionE2ETests(TestCase):
             else:
                 # Tentar URL direta
                 print("4️⃣  Tentando acessar perfil via URL direta...")
-                self.selenium.get(f"{self.PRODUCTION_URL}/perfil/")
+                self.selenium.get(f"{self.PRODUCTION_URL}/accounts/profile/")
                 time.sleep(3)
             
             print("5️⃣  Verificando elementos de gamificação no perfil...")
@@ -1093,9 +1093,9 @@ class JornalProductionE2ETests(TestCase):
             gamification_elements = {
                 'pontos': ['pontos', 'points', '⭐'],
                 'nivel': ['nível', 'nivel', 'level'],
-                'estatisticas': ['estatísticas', 'estatisticas', 'stats'],
-                'noticias_lidas': ['notícias lidas', 'noticias lidas', 'artigos lidos'],
-                'comentarios': ['comentários', 'comentarios']
+                'estatisticas': ['notícias lidas', 'noticias lidas', 'comentários', 'comentarios'],
+                'progresso': ['próximo nível', 'proximo nivel', 'progresso'],
+                'perfil': ['meu perfil', 'bem-vindo']
             }
             
             found_elements = []
@@ -1122,7 +1122,11 @@ class JornalProductionE2ETests(TestCase):
             if username in self.selenium.page_source:
                 print(f"   ✓ Username '{username}' visível no perfil")
             
-            print("\n✅ Perfil visualizado com sucesso!")
+            # Verificar se há mensagem de erro
+            if 'erro' in page_source or 'error' in page_source:
+                print("\n   ⚠️  Possível erro detectado na página")
+            else:
+                print("\n✅ Perfil visualizado com sucesso!")
             
         except Exception as e:
             print(f"\n❌ Erro ao visualizar perfil: {str(e)}")
