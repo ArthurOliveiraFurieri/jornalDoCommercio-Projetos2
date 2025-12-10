@@ -39,7 +39,7 @@ class JornalAppViewsTests(TestCase):
     def test_mensagem_login_para_comentar(self):
         response = self.client.get(self.url_artigo)
         self.assertContains(response, "Faça login")
-        self.assertContains(response, "para comentar")
+        self.assertContains(response, "para deixar um comentário")
 
     def test_usuario_autenticado_pode_comentar(self):
         self.client.login(username="joao", password="123456")
@@ -116,15 +116,15 @@ class JornalAppViewsTests(TestCase):
         url_search = reverse("jornal_app:noticia_search") + "?q=medida"
         response = self.client.get(url_search)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Resultados da busca por")
-        self.assertContains(response, self.noticia.titulo)
+        self.assertContains(response, "Resultados da Busca")
+        self.assertContains(response, "Buscando por")
         self.assertContains(response, self.noticia.titulo)
 
     def test_busca_sem_resultados_exibe_mensagem(self):
         url_search = reverse("jornal_app:noticia_search") + "?q=Inexistente"
         response = self.client.get(url_search)
-        self.assertContains(response, "Nenhum resultado encontrado")
-        self.assertContains(response, "palavras-chave diferentes")
+        self.assertContains(response, "Nenhuma notícia encontrada")
+        self.assertContains(response, "Inexistente")
 
     # Teste página categoria
 
