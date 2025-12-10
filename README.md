@@ -45,3 +45,5 @@ Portal digital moderno para o Jornal do Commercio, oferecendo:
 ### Link para o deploy
 https://jornaldocommercio-projetos2-production.up.railway.app/
 
+### Link para Screencasts
+Workflow CI/CD: https://youtu.be/PulCwraumhA
