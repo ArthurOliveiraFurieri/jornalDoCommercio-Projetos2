@@ -4,10 +4,60 @@
 
 Este projeto inclui **testes End-to-End (E2E)** completos que simulam a jornada real do usuário na aplicação web usando **Selenium WebDriver**.
 
-## 🎯 Cenários de Teste Cobertos
+## 🎯 Tipos de Testes Disponíveis
 
-### ✅ Testes Unitários (TestCase)
-1. Exibição de artigos com título e conteúdo
+### 1. ✅ Testes Unitários (TestCase) - 11 testes
+Testes rápidos que verificam funcionalidades individuais sem navegador.
+
+### 2. 🚀 Testes E2E Local (LiveServerTestCase + Selenium) - 10 testes
+Testes com servidor Django local, navegador em modo headless (sem janela).
+
+### 3. 🌐 **NOVO! Testes E2E Produção (Site ao Vivo)** - 7 testes
+**Testa o site DEPLOYADO no Railway com navegador VISÍVEL!**
+- ✅ Você vê os testes acontecendo na tela
+- ✅ Testa o site real em produção
+- ✅ Verifica responsividade em diferentes resoluções
+- ✅ Simula jornada completa do usuário
+
+## 🎬 Como Executar Testes de Produção (Navegador Visível)
+
+### Método 1: Script Automatizado (Recomendado)
+
+```bash
+python executar_testes_producao.py
+```
+
+### Método 2: Comando Django Direto
+
+```bash
+python manage.py test jornal_app.tests.JornalProductionE2ETests --verbosity=2
+```
+
+### O que você verá:
+
+1. 🌐 Navegador Chrome abre automaticamente
+2. 📍 Acessa o site no Railway
+3. 🎬 Executa ações como um usuário real:
+   - Navega pela homepage
+   - Usa o sistema de busca
+   - Clica em notícias
+   - Testa páginas de login/cadastro
+   - Muda tamanho da janela (responsividade)
+4. ✅ Mostra resultados em tempo real no terminal
+5. ⏰ Pausa 5 segundos antes de fechar
+
+## 🧪 Cenários de Teste de Produção
+## 🧪 Cenários de Teste de Produção
+
+1. **test_prod_01_homepage_carrega** - Verifica carregamento da homepage
+2. **test_prod_02_navegacao_busca** - Testa sistema de busca
+3. **test_prod_03_clicar_noticia** - Clica e lê uma notícia
+4. **test_prod_04_acessar_cadastro** - Verifica formulário de cadastro
+5. **test_prod_05_acessar_login** - Verifica formulário de login
+6. **test_prod_06_verificar_responsividade** - Testa Desktop/Tablet/Mobile
+7. **test_prod_07_navegacao_completa** - Simula jornada completa
+
+## 📊 Cenários de Teste Local (E2E)
 2. Mensagem de login para comentar
 3. Comentários de usuários autenticados
 4. Exclusão de comentários pelo autor

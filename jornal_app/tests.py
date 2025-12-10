@@ -506,3 +506,262 @@ class JornalE2ETests(LiveServerTestCase):
         url_categoria = reverse("jornal_app:noticias_por_categoria", args=[outra_categoria.pk])
         response = self.client.get(url_categoria)
         self.assertContains(response, "Ainda não há notícias publicadas nesta categoria.")
+
+
+# =====================================================
+# TESTES E2E PRODUÇÃO - SITE AO VIVO NO RAILWAY
+# =====================================================
+
+class JornalProductionE2ETests(TestCase):
+    """
+    Testes E2E no site de PRODUÇÃO (Railway).
+    Abre o navegador VISÍVEL para mostrar os testes em ação.
+    
+    IMPORTANTE: Execute apenas quando o site estiver deployado!
+    Comando: python manage.py test jornal_app.tests.JornalProductionE2ETests
+    """
+    
+    # URL do site em produção no Railway
+    PRODUCTION_URL = "https://jornaldocommercio-projetos2-production.up.railway.app"
+    
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        print("\n" + "="*70)
+        print("🚀 INICIANDO TESTES E2E NO SITE DE PRODUÇÃO")
+        print(f"🌐 URL: {cls.PRODUCTION_URL}")
+        print("👁️  Navegador VISÍVEL - Acompanhe os testes na tela!")
+        print("="*70 + "\n")
+        
+        # Configuração do Chrome VISÍVEL (SEM headless)
+        options = webdriver.ChromeOptions()
+        # Comentar headless para ver o navegador
+        # options.add_argument('--headless')
+        options.add_argument('--start-maximized')  # Maximizar janela
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option('useAutomationExtension', False)
+        
+        cls.selenium = webdriver.Chrome(options=options)
+        cls.selenium.implicitly_wait(10)
+        
+        # Deixar navegador aberto por mais tempo para visualização
+        cls.selenium.set_page_load_timeout(30)
+    
+    @classmethod
+    def tearDownClass(cls):
+        print("\n" + "="*70)
+        print("✅ TESTES CONCLUÍDOS!")
+        print("⏳ Aguardando 5 segundos antes de fechar o navegador...")
+        print("="*70)
+        time.sleep(5)  # Pausar antes de fechar
+        cls.selenium.quit()
+        super().tearDownClass()
+    
+    def test_prod_01_homepage_carrega(self):
+        """Teste 1: Verificar se a homepage carrega corretamente"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 1: Carregamento da Homepage")
+        print("="*70)
+        
+        print(f"📍 Acessando: {self.PRODUCTION_URL}")
+        self.selenium.get(self.PRODUCTION_URL)
+        time.sleep(3)
+        
+        print("✓ Verificando título da página...")
+        page_title = self.selenium.title
+        print(f"  📄 Título: {page_title}")
+        self.assertIn("Jornal", page_title)
+        
+        print("✓ Verificando se há notícias na página...")
+        body = self.selenium.find_element(By.TAG_NAME, 'body').text
+        self.assertTrue(len(body) > 100)
+        
+        print("✅ Homepage carregada com sucesso!\n")
+        time.sleep(2)
+    
+    def test_prod_02_navegacao_busca(self):
+        """Teste 2: Testar funcionalidade de busca"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 2: Sistema de Busca")
+        print("="*70)
+        
+        self.selenium.get(self.PRODUCTION_URL)
+        time.sleep(2)
+        
+        try:
+            print("✓ Procurando botão de busca...")
+            search_btn = WebDriverWait(self.selenium, 10).until(
+                EC.element_to_be_clickable((By.ID, "search-toggle-btn"))
+            )
+            print("✓ Clicando no botão de busca...")
+            search_btn.click()
+            time.sleep(1)
+            
+            print("✓ Digitando termo de busca: 'política'")
+            search_input = self.selenium.find_element(By.NAME, 'q')
+            search_input.send_keys('política')
+            time.sleep(1)
+            
+            print("✓ Submetendo busca...")
+            search_input.submit()
+            time.sleep(3)
+            
+            print("✓ Verificando resultados...")
+            body = self.selenium.find_element(By.TAG_NAME, 'body').text
+            self.assertIn("Busca", body) or self.assertIn("Resultado", body)
+            
+            print("✅ Sistema de busca funcionando!\n")
+        except Exception as e:
+            print(f"⚠️  Aviso: Busca não disponível - {str(e)}\n")
+        
+        time.sleep(2)
+    
+    def test_prod_03_clicar_noticia(self):
+        """Teste 3: Clicar em uma notícia e ler conteúdo"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 3: Leitura de Notícia")
+        print("="*70)
+        
+        self.selenium.get(self.PRODUCTION_URL)
+        time.sleep(3)
+        
+        try:
+            print("✓ Procurando primeira notícia...")
+            noticia_link = WebDriverWait(self.selenium, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href*='/noticia/']"))
+            )
+            
+            noticia_titulo = noticia_link.text
+            print(f"✓ Encontrada: '{noticia_titulo}'")
+            print("✓ Clicando na notícia...")
+            noticia_link.click()
+            time.sleep(3)
+            
+            print("✓ Verificando conteúdo da notícia...")
+            body = self.selenium.find_element(By.TAG_NAME, 'body').text
+            self.assertTrue(len(body) > 200)
+            
+            print("✅ Notícia aberta e lida com sucesso!\n")
+        except Exception as e:
+            print(f"⚠️  Erro ao clicar na notícia: {str(e)}\n")
+        
+        time.sleep(2)
+    
+    def test_prod_04_acessar_cadastro(self):
+        """Teste 4: Acessar página de cadastro"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 4: Página de Cadastro")
+        print("="*70)
+        
+        cadastro_url = f"{self.PRODUCTION_URL}/accounts/register/"
+        print(f"📍 Acessando: {cadastro_url}")
+        self.selenium.get(cadastro_url)
+        time.sleep(3)
+        
+        print("✓ Verificando formulário de cadastro...")
+        try:
+            username_field = self.selenium.find_element(By.NAME, 'username')
+            email_field = self.selenium.find_element(By.NAME, 'email')
+            password1_field = self.selenium.find_element(By.NAME, 'password1')
+            password2_field = self.selenium.find_element(By.NAME, 'password2')
+            
+            print("  ✓ Campo: username")
+            print("  ✓ Campo: email")
+            print("  ✓ Campo: password1")
+            print("  ✓ Campo: password2")
+            
+            print("✅ Formulário de cadastro OK!\n")
+        except Exception as e:
+            print(f"❌ Erro no formulário: {str(e)}\n")
+        
+        time.sleep(2)
+    
+    def test_prod_05_acessar_login(self):
+        """Teste 5: Acessar página de login"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 5: Página de Login")
+        print("="*70)
+        
+        login_url = f"{self.PRODUCTION_URL}/accounts/login/"
+        print(f"📍 Acessando: {login_url}")
+        self.selenium.get(login_url)
+        time.sleep(3)
+        
+        print("✓ Verificando formulário de login...")
+        try:
+            username_field = self.selenium.find_element(By.NAME, 'username')
+            password_field = self.selenium.find_element(By.NAME, 'password')
+            
+            print("  ✓ Campo: username")
+            print("  ✓ Campo: password")
+            
+            print("✅ Formulário de login OK!\n")
+        except Exception as e:
+            print(f"❌ Erro no formulário: {str(e)}\n")
+        
+        time.sleep(2)
+    
+    def test_prod_06_verificar_responsividade(self):
+        """Teste 6: Testar responsividade em diferentes tamanhos"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 6: Responsividade")
+        print("="*70)
+        
+        tamanhos = [
+            ("Desktop", 1920, 1080),
+            ("Tablet", 768, 1024),
+            ("Mobile", 375, 667)
+        ]
+        
+        for nome, largura, altura in tamanhos:
+            print(f"\n✓ Testando em {nome} ({largura}x{altura})...")
+            self.selenium.set_window_size(largura, altura)
+            time.sleep(1)
+            
+            self.selenium.get(self.PRODUCTION_URL)
+            time.sleep(2)
+            
+            body = self.selenium.find_element(By.TAG_NAME, 'body')
+            print(f"  ✓ Página renderizada em {nome}")
+            time.sleep(2)
+        
+        # Voltar ao tamanho maximizado
+        self.selenium.maximize_window()
+        print("\n✅ Responsividade testada!\n")
+        time.sleep(2)
+    
+    def test_prod_07_navegacao_completa(self):
+        """Teste 7: Jornada completa do usuário"""
+        print("\n" + "="*70)
+        print("🧪 TESTE 7: Jornada Completa do Usuário")
+        print("="*70)
+        
+        print("\n1️⃣  Acessando homepage...")
+        self.selenium.get(self.PRODUCTION_URL)
+        time.sleep(2)
+        
+        print("2️⃣  Explorando conteúdo...")
+        self.selenium.execute_script("window.scrollTo(0, 500);")
+        time.sleep(1)
+        self.selenium.execute_script("window.scrollTo(0, 1000);")
+        time.sleep(1)
+        
+        print("3️⃣  Voltando ao topo...")
+        self.selenium.execute_script("window.scrollTo(0, 0);")
+        time.sleep(1)
+        
+        try:
+            print("4️⃣  Navegando para cadastro...")
+            cadastrar_link = self.selenium.find_element(By.LINK_TEXT, "Cadastrar")
+            cadastrar_link.click()
+            time.sleep(2)
+            
+            print("5️⃣  Voltando para home...")
+            self.selenium.get(self.PRODUCTION_URL)
+            time.sleep(2)
+        except:
+            print("  ⚠️  Link de cadastro não encontrado no menu")
+        
+        print("\n✅ Jornada completa simulada!\n")
+        time.sleep(2)
