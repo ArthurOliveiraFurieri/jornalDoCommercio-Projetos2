@@ -1,14 +1,3 @@
-"""
-🚀 EXECUTAR TESTES E2E NO SITE DE PRODUÇÃO
-==========================================
-
-Este script executa os testes E2E no site deployado no Railway
-com o navegador VISÍVEL para acompanhar os testes em tempo real.
-
-Uso:
-    python executar_testes_producao.py
-"""
-
 import subprocess
 import sys
 
@@ -38,7 +27,6 @@ def main():
     
     print("\n🚀 Executando testes...\n")
     
-    # Executar testes de produção
     cmd = [
         sys.executable,
         "manage.py",

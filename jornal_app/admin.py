@@ -14,7 +14,6 @@ class NoticiaAdmin(admin.ModelAdmin):
     list_editable = ('destaque',)
     readonly_fields = ('data_publicacao',)
     
-    # Campos para exibir no formulário de edição
     fieldsets = (
         ('Informações Básicas', {
             'fields': ('titulo', 'conteudo', 'categoria')
@@ -24,11 +23,10 @@ class NoticiaAdmin(admin.ModelAdmin):
         }),
         ('Informações da Fonte Externa', {
             'fields': ('url_fonte', 'imagem_url', 'autor_fonte'),
-            'classes': ('collapse',)  # Faz esta seção ser recolhível
+            'classes': ('collapse',)
         }),
-    )
+    ),
     
-    # Ações personalizadas
     actions = ['marcar_como_destaque', 'remover_destaque']
     
     def marcar_como_destaque(self, request, queryset):
@@ -41,13 +39,12 @@ class NoticiaAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} notícia(s) removida(s) dos destaques!")
     remover_destaque.short_description = "Remover dos destaques"
 
-# ADICIONE ESTE NOVO REGISTRO PARA COMENTÁRIOS
 @admin.register(Comentario)
 class ComentarioAdmin(admin.ModelAdmin):
     list_display = ['autor', 'noticia', 'data_criacao', 'ativo']
     list_filter = ['ativo', 'data_criacao', 'noticia__categoria']
     search_fields = ['autor__username', 'noticia__titulo', 'texto']
-    list_editable = ['ativo']  # Permite ativar/desativar diretamente na lista
+    list_editable = ['ativo']
     actions = ['aprovar_comentarios', 'rejeitar_comentarios']
     
     def aprovar_comentarios(self, request, queryset):

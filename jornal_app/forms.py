@@ -19,11 +19,10 @@ class CategoriaForm(forms.ModelForm):
 class ComentarioForm(forms.ModelForm):
     class Meta:
         model = Comentario
-        fields = ['texto'] # O usuário só precisa digitar o texto
+        fields = ['texto']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Adiciona um estilo e placeholder ao campo de texto
         self.fields['texto'].widget = forms.Textarea(
             attrs={
                 'placeholder': 'Escreva seu comentário aqui...',

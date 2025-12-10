@@ -41,7 +41,6 @@ class Noticia(models.Model):
         help_text="Marque para que esta notícia apareça na seção de destaques da homepage."
     )
     
-    # ⭐⭐ CAMPOS OBRIGATÓRIOS PARA A API ⭐⭐
     url_fonte = models.URLField(
         max_length=500, 
         blank=True, 
@@ -75,9 +74,6 @@ class Noticia(models.Model):
         return reverse('jornal_app:artigo', kwargs={'pk': self.pk})
 
 class Comentario(models.Model):
-    """
-    Representa um comentário de um usuário em uma notícia.
-    """
     noticia = models.ForeignKey(
         Noticia, 
         on_delete=models.CASCADE, 
@@ -100,13 +96,10 @@ class Comentario(models.Model):
         return f'Comentário de {self.autor.username} em {self.noticia.titulo}'
 
 class UserProfile(models.Model):
-    """
-    Perfil do usuário com sistema de gamificação
-    """
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
-        related_name='userprofile'  # ← Mudei para 'userprofile' para não conflitar
+        related_name='userprofile'
     )
     pontos = models.IntegerField(default=0, verbose_name="Pontos")
     nivel = models.IntegerField(default=1, verbose_name="Nível")
@@ -123,9 +116,7 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
 
-    # 🎮 MÉTODOS DE GAMIFICAÇÃO
     def adicionar_pontos(self, quantidade, motivo=""):
-        """Adiciona pontos e verifica level up"""
         self.pontos += quantidade
         novo_nivel = (self.pontos // 100) + 1
         
@@ -137,19 +128,16 @@ class UserProfile(models.Model):
         return novo_nivel > self.nivel  # Retorna True se subiu de nível
 
     def marcar_noticia_lida(self, noticia_id):
-        """Marca uma notícia como lida e adiciona pontos"""
         self.noticias_lidas += 1
         level_up = self.adicionar_pontos(5, f"Leitura da notícia {noticia_id}")
         return level_up
 
     def marcar_comentario_feito(self):
-        """Marca um comentário como feito e adiciona pontos"""
         self.comentarios_feitos += 1
         level_up = self.adicionar_pontos(10, "Comentário feito")
         return level_up
 
     def marcar_categoria_visitada(self, categoria_id):
-        """Marca uma categoria como visitada (se for nova)"""
         if categoria_id not in self.categorias_visitadas:
             self.categorias_visitadas.append(categoria_id)
             level_up = self.adicionar_pontos(15, f"Nova categoria visitada: {categoria_id}")
@@ -157,16 +145,13 @@ class UserProfile(models.Model):
         return False
 
     def get_progresso_porcentagem(self):
-        """Retorna a porcentagem de progresso para o próximo nível"""
         pontos_no_nivel = self.pontos % 100
         return min(100, (pontos_no_nivel / 100) * 100)
 
     def get_pontos_proximo_nivel(self):
-        """Retorna quantos pontos faltam para o próximo nível"""
         return 100 - (self.pontos % 100)
 
     def get_badges(self):
-        """Retorna as badges conquistadas pelo usuário"""
         badges = []
         
         if self.noticias_lidas >= 10:
@@ -189,7 +174,6 @@ class UserProfile(models.Model):
         return badges
 
     def get_estatisticas(self):
-        """Retorna estatísticas formatadas"""
         return {
             'noticias_lidas': self.noticias_lidas,
             'comentarios_feitos': self.comentarios_feitos,
@@ -200,7 +184,6 @@ class UserProfile(models.Model):
             'badges': self.get_badges(),
         }
 
-# 📞 SIGNALS para criar profile automaticamente
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def criar_user_profile(sender, instance, created, **kwargs):
     if created:
