@@ -24,6 +24,9 @@ def main():
     print("  5. 🔐 Página de Login")
     print("  6. 📱 Responsividade (Desktop/Tablet/Mobile)")
     print("  7. 🎬 Jornada Completa do Usuário")
+    print("  8. 👤 Criação de Conta Aleatória")
+    print("  9. 💬 Comentar em Notícia")
+    print("  10. 🎮 Visualizar Perfil e Gamificação")
     
     print("\n⚠️  IMPORTANTE:")
     print("  • O navegador Chrome abrirá VISÍVEL")

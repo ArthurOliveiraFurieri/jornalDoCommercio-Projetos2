@@ -12,12 +12,15 @@ Testes rápidos que verificam funcionalidades individuais sem navegador.
 ### 2. 🚀 Testes E2E Local (LiveServerTestCase + Selenium) - 10 testes
 Testes com servidor Django local, navegador em modo headless (sem janela).
 
-### 3. 🌐 **NOVO! Testes E2E Produção (Site ao Vivo)** - 7 testes
+### 3. 🌐 **NOVO! Testes E2E Produção (Site ao Vivo)** - 10 testes
 **Testa o site DEPLOYADO no Railway com navegador VISÍVEL!**
 - ✅ Você vê os testes acontecendo na tela
 - ✅ Testa o site real em produção
 - ✅ Verifica responsividade em diferentes resoluções
 - ✅ Simula jornada completa do usuário
+- ✅ Testa criação de conta e autenticação
+- ✅ Verifica sistema de comentários
+- ✅ Visualiza perfil e gamificação
 
 ## 🎬 Como Executar Testes de Produção (Navegador Visível)
 
@@ -56,6 +59,9 @@ python manage.py test jornal_app.tests.JornalProductionE2ETests --verbosity=2
 5. **test_prod_05_acessar_login** - Verifica formulário de login
 6. **test_prod_06_verificar_responsividade** - Testa Desktop/Tablet/Mobile
 7. **test_prod_07_navegacao_completa** - Simula jornada completa
+8. **test_prod_08_criar_conta_aleatoria** - Cria conta com dados aleatórios
+9. **test_prod_09_comentar_noticia** - Faz login e comenta em notícia
+10. **test_prod_10_visualizar_perfil_gamificacao** - Visualiza perfil e elementos de gamificação
 
 ## 📊 Cenários de Teste Local (E2E)
 2. Mensagem de login para comentar
