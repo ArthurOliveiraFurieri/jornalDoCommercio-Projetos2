@@ -29,7 +29,7 @@ jobs:
     
     - name: Run unit tests
       run: |
-        python manage.py test jornal_app.tests.JornalAppViewsTests --verbosity=2
+        python manage.py test jornal_app --verbosity=2
     
     - name: Run Django system check
       run: |
