@@ -47,5 +47,7 @@ https://jornaldocommercio-projetos2-production.up.railway.app/
 
 ### Link para Screencasts
 Workflow CI/CD: https://youtu.be/PulCwraumhA
+
 Testes automatizados: https://youtu.be/HFzdy0H2S08
+
 Protótipo do site (demonstração): https://youtu.be/etKah21VZNA
